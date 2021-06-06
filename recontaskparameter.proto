@@ -1,0 +1,30 @@
+syntax = "proto2";
+
+package recontaskparameter_pb;
+
+message ReconTaskParameterPB {
+    required string task_name = 1;
+    required string path_sysmat = 2;
+    required string path_sinogdram = 3;
+    optional string path_scatter_map = 4;
+    optional string path_mu_map = 5;
+    required bool use_nn = 6;
+    required bool use_scatter_map = 7;
+    required int32 num_iters = 8;
+    required int32 num_dual_iters = 9;
+    required double gamma = 10;
+    required double lambda = 11;
+    optional double scatter_coeff = 12;
+    required string output_dir = 13;
+    enum IteratorType {
+        MLEM = 0;
+        EM_Tikhonov = 1;
+        PAPA_2DWavelet = 2;
+        PAPA_Cont = 3;
+        PAPA_Cont_TV = 4;
+        PAPA_Cont_Wavelet = 5;
+        PAPA_Dynamic = 6;
+        PAPA_TV = 7;
+    }
+    required IteratorType iterator = 14;
+}
