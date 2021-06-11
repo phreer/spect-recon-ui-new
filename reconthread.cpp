@@ -5,14 +5,18 @@
 
 #include <QDir>
 #include <QDebug>
+#include <QElapsedTimer>
 
-QString ReconThread::model_path = "/Users/phree/workspace/SPECT/scascnet/scascnet/ckpt_e40_0_p25.2163251814763.pth.onnx";
+#define OS_LINUX
 
-ReconThread::ReconThread(QObject *parent, const QVector<ReconTaskParameter> &reconTaskParamList)
-    : QThread(parent), _reconTaskParamList(reconTaskParamList)
+ReconThread::ReconThread(QObject *parent, const QVector<ReconTaskParameter> &reconTaskParamList, int startTaskIndex)
+    : QThread(parent), _reconTaskParamList(reconTaskParamList), _startTaskIndex(startTaskIndex)
 {
     SPECTSetLogLevel(LOG_INFO, true);
-
+#ifdef OS_LINUX
+    const char *appdir = getenv("APPDIR");
+    _modelPath = QString::fromStdString(appdir) + "/usr/share/model/ckpt_e40_0_p25.2163251814763.pth.onnx";
+#endif
     // 初始化内存全局变量
     int rv;
     rv = SPECTInitialize();
@@ -29,15 +33,16 @@ void ReconThread::run()
     SPECTProject spectProject;
     for (auto i = 0; i < _reconTaskParamList.size(); ++i)
     {
-        _currentTask = i;
+        _taskIndexOffset = i;
         _process = 0;
         reconstruct(spectProject, _reconTaskParamList[i]);
-        emit(milestone(i, 100));
+        emit(milestone(getTaskID(), 100));
     }
 }
 
 void ReconThread::reconstruct(SPECTProject &spectProject, const ReconTaskParameter &param)
 {
+    qDebug() << "Start task " << getTaskID() << "..." << endl;
     QString baseDir = QDir::home().filePath("spect-recon");
 
     SPECTParam spectParam;
@@ -66,11 +71,17 @@ void ReconThread::reconstruct(SPECTProject &spectProject, const ReconTaskParamet
     }
     spectParam.io_param.outputdir = outputDir.toStdString();
 
+    QElapsedTimer timer;
+
     if (param.useNN) {
-        Scascnet net(model_path.toStdString().c_str());
+        Scascnet net(_modelPath.toStdString().c_str());
         Sinogram<float> inputSinogram(param.pathSinogram.toStdString(), kNumSlices, kNumAngles, kNumDetectors);
         qDebug() << "Running neural networks..." << endl;
+
+        timer.start();
         Sinogram<float> restoredSinogram = net.Run(inputSinogram);
+        qDebug() << "Time consumed for restoration: " << timer.elapsed() << " (ms)." << endl;
+
         Sinogram<double> restoredSinogramDouble = restoredSinogram.TransformType<double>();
 
         qDebug() << "Restoration completed." << endl;
@@ -103,5 +114,8 @@ void ReconThread::reconstruct(SPECTProject &spectProject, const ReconTaskParamet
         exit(-1);
     }
     spectProject.SetSpectParams(spectParam);
+    timer.start();
     spectProject.GenerateBackProject(&_process);
+    qDebug() << "Time consumed for reconstruction: " << timer.elapsed() << " (ms)." << endl;
+    qDebug() << "Task " << getTaskID() << " completed." << endl;
 }

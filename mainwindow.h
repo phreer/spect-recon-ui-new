@@ -70,6 +70,9 @@ private slots:
 
     void on_checkBoxRestore_stateChanged(int arg1);
 
+    void on_actionRun_All_Tasks_triggered();
+
+    void updateTaskStatus(int taskID, int process);
 private:
     void ReleaseData();
     void UpdateParameterDisplay(const ReconTaskParameter &param);
@@ -80,11 +83,20 @@ private:
 
     Ui::MainWindow *ui;
     QVector<ReconTaskParameter> params_;
+    // 0 for TO_BE_CONDUCTED, 1 for COMPLETED, 2 for RUNNING
+    enum class TaskStatus {
+        READ_TO_RUN,
+        COMPLETED,
+        RUNNING
+    };
+
+    QVector<TaskStatus> taskStatus_;
 
     static QString baseDir_;
     QString currentDir_;
     std::shared_ptr<ReconThread> thread_;
     int CurrentTaskIndex() const;
-    void RunTask(const ReconTaskParameter &param);
+    void RunTask(int taskID);
+    void RunAllTask();
 };
 #endif // MAINWINDOW_H

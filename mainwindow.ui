@@ -326,32 +326,12 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButtonDelete">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Delete</string>
-          </property>
-         </widget>
-        </item>
-        <item>
          <widget class="QPushButton" name="pushButtonRun">
           <property name="enabled">
            <bool>false</bool>
           </property>
           <property name="text">
            <string>Run</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="pushButtonShowResult">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Show Result</string>
           </property>
          </widget>
         </item>
@@ -367,7 +347,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>22</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

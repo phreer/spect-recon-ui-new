@@ -8,29 +8,36 @@ CONFIG += c++11
 # In order to do so, uncomment the following line.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-PROTOBUF_DIR = /usr/local/Cellar/protobuf/3.17.2
-SPECT_LIB_DIR = ../spect-recon/build/lib
+PROTOBUF_INCLUDE_DIR = $$(HOME)/local/include
+PROTOBUF_LIB_DIR = $$(HOME)/local/lib
 SPECT_INCLUDE_DIR = ../spect-recon/include
-ONNXRUNTIME_DIR = /usr/local/Cellar/onnxruntime/1.7.2
+SPECT_LIB_DIR = $$(HOME)/local/lib
+
+ONNXRUNTIME_INCLUDE_DIR = $$(HOME)/local/onnxruntime-linux-x64-1.8.0/include
+ONNXRUNTIME_LIB_DIR = $$(HOME)/local/lib
+
+QMAKE_CXXFLAGS += -fopenmp
 
 LIBS += \
-    -L$${PROTOBUF_DIR}/lib \
+    -L$${PROTOBUF_LIB_DIR} \
     -lprotobuf \
     -lprotoc \
     -L$${SPECT_LIB_DIR} \
     -lspect \
-    -L/usr/local/lib \
+    -L$${ONNXRUNTIME_LIB_DIR} \
+    -lonnxruntime \
     -lpthread \
-    -lomp \
-    -L$${ONNXRUNTIME_DIR} \
-    -lonnxruntime
+    -fopenmp
+
+message($${LIBS})
 
 INCLUDEPATH += \
-    $${PROTOBUF_DIR}/include \
+    $${PROTOBUF_INCLUDE_DIR} \
     $${SPECT_INCLUDE_DIR} \
     /usr/local/include \
-    $${ONNXRUNTIME_DIR}\include
+    $${ONNXRUNTIME_INCLUDE_DIR}
 
+message($${INCLUDEPATH})
 SOURCES += \
     main.cpp \
     mainwindow.cpp \
@@ -56,7 +63,24 @@ TRANSLATIONS += \
 CONFIG += lrelease
 CONFIG += embed_translations
 
-# Default rules for deployment.
-qnx: target.path = /tmp/$${TARGET}/bin
-else: unix:!android: target.path = /opt/$${TARGET}/bin
-!isEmpty(target.path): INSTALLS += target
+PREFIX = /usr
+
+target.path = $${PREFIX}/bin
+INSTALLS += target
+
+icon.files = spect-recon-ui-new.png
+icon.path = $$PREFIX/share/pixmaps
+INSTALLS += icon
+
+shortcut.files = spect-recon-ui-new.desktop
+shortcut.path = $$PREFIX/share/applications
+INSTALLS += shortcut
+
+model_ckpt.files = ckpt_e40_0_p25.2163251814763.pth
+model_ckpt.path = $$PREFIX/share/model
+INSTALLS += model_ckpt
+
+DISTFILES += \
+    spect-recon-ui-new.desktop \
+    spect-recon-ui-new.png \
+    ckpt_e40_0_p25.2163251814763.pth.onnx

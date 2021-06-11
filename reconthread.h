@@ -12,15 +12,16 @@ class ReconThread : public QThread
     Q_OBJECT
 public:
     ReconThread(QObject *parent,
-                const QVector<ReconTaskParameter> &reconTaskParamList);
+                const QVector<ReconTaskParameter> &reconTaskParamList,
+                int startTaskIndex);
     int getTaskID() const {
-        return _currentTask;
+        return _startTaskIndex + _taskIndexOffset;
     }
     int getProcess() const {
         return _process;
     }
 signals:
-    void milestone(uint task_id, uint process);
+    void milestone(int taskId, int process);
 
 protected:
     void run() override;
@@ -28,9 +29,10 @@ protected:
 private:
     void reconstruct(SPECTProject &spectProject, const ReconTaskParameter &param);
     QVector<ReconTaskParameter> _reconTaskParamList;
+    int _startTaskIndex;
     int _process;
-    int _currentTask;
-    static QString model_path;
+    int _taskIndexOffset;
+    QString _modelPath;
 };
 
 #endif // RECONTHREAD_H

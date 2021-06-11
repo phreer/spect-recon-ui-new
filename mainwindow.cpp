@@ -47,6 +47,7 @@ void MainWindow::ParamChanged()
 {
     ui->pushButtonSave->setEnabled(true);
     ui->pushButtonRun->setEnabled(true);
+    ui->actionRun_All_Tasks->setEnabled(true);
 }
 
 void MainWindow::SetEditable(bool editible)
@@ -69,7 +70,6 @@ void MainWindow::SetEditable(bool editible)
     ui->pushButtonSelectSinogram->setEnabled(editible);
     ui->pushButtonRun->setEnabled(editible);
     ui->pushButtonSave->setEnabled(editible);
-    ui->pushButtonDelete->setEnabled(editible);
     ui->pushButtonSelectOutputDir->setEnabled(editible);
 }
 
@@ -105,12 +105,14 @@ void MainWindow::CreateNewTask()
     ui->listWidgetTask->setCurrentRow(ui->listWidgetTask->count() - 1);
     ReconTaskParameter param;
     params_.push_back(std::move(param));
+    taskStatus_.push_back(TaskStatus::READ_TO_RUN);
     UpdateParameterDisplay(params_[CurrentTaskIndex()]);
 }
 
 void MainWindow::on_actionNew_Task_triggered()
 {
     CreateNewTask();
+    ui->statusbar->showMessage("Press Run to run this task.");
 }
 
 
@@ -240,7 +242,7 @@ void MainWindow::on_lineEditSinogram_textChanged(const QString &arg1)
 void MainWindow::on_lineEditNumIters_editingFinished()
 {
     bool isInteger = false;
-    int numIters = ui->lineEditNumIters->text().toInt(&isInteger);
+    uint numIters = ui->lineEditNumIters->text().toUInt(&isInteger);
     if (!isInteger) {
         auto box = new QMessageBox(this);
         box->setText("Integer is required.");
@@ -256,7 +258,7 @@ void MainWindow::on_lineEditNumIters_editingFinished()
 void MainWindow::on_lineEditNumDualIters_editingFinished()
 {
     bool isInteger = false;
-    int numDualIters = ui->lineEditNumDualIters->text().toInt(&isInteger);
+    uint numDualIters = ui->lineEditNumDualIters->text().toUInt(&isInteger);
     if (!isInteger) {
         auto box = new QMessageBox(this);
         box->setText("Integer is required.");
@@ -356,7 +358,7 @@ void MainWindow::on_pushButtonRun_clicked()
 {
     ui->pushButtonRun->setEnabled(false);
     ui->actionRun_All_Tasks->setEnabled(false);
-    RunTask(params_[CurrentTaskIndex()]);
+    RunTask(CurrentTaskIndex());
 }
 
 
@@ -372,12 +374,13 @@ void MainWindow::on_actionImport_Tasks_triggered()
     UpdateParameterDisplay(param);
 }
 
-void MainWindow::RunTask(const ReconTaskParameter &param)
+void MainWindow::RunTask(int taskID)
 {
     QVector<ReconTaskParameter> paramList;
-    paramList.append(param);
-    thread_ = make_shared<ReconThread>(this, paramList);
+    paramList.append(params_[taskID]);
+    thread_ = make_shared<ReconThread>(this, paramList, taskID);
     thread_->start();
+    taskStatus_[taskID] = TaskStatus::RUNNING;
 }
 
 void MainWindow::on_comboBoxIterator_currentTextChanged(const QString &arg1)
@@ -387,5 +390,21 @@ void MainWindow::on_comboBoxIterator_currentTextChanged(const QString &arg1)
 }
 
 
+void MainWindow::RunAllTask()
+{
+    thread_ = make_shared<ReconThread>(this, params_, 0);
+    thread_->start();
+}
 
 
+void MainWindow::on_actionRun_All_Tasks_triggered()
+{
+    ui->pushButtonRun->setEnabled(false);
+    ui->actionRun_All_Tasks->setEnabled(false);
+    if (params_.count()) RunAllTask();
+}
+
+void MainWindow::updateTaskStatus(int taskID, int process)
+{
+    if (process == 100) taskStatus_[taskID] = TaskStatus::COMPLETED;
+}
