@@ -1,11 +1,15 @@
 #include "reconthread.h"
-#include "spect.h"
-#include "scascnet.h"
-#include "sinogram.h"
+
+#include <stdlib.h>
+#include <string.h>
 
 #include <QDir>
 #include <QDebug>
 #include <QElapsedTimer>
+
+#include "spect.h"
+#include "scascnet.h"
+#include "sinogram.h"
 
 #define OS_LINUX
 
@@ -13,10 +17,19 @@ ReconThread::ReconThread(QObject *parent, const QVector<ReconTaskParameter> &rec
     : QThread(parent), _reconTaskParamList(reconTaskParamList), _startTaskIndex(startTaskIndex)
 {
     SPECTSetLogLevel(LOG_INFO, true);
-#ifdef OS_LINUX
+#if defined (OS_LINUX) && defined (USE_APPIMAGE)
     const char *appdir = getenv("APPDIR");
     _modelPath = QString::fromStdString(appdir) + "/usr/share/model/ckpt_e40_0_p25.2163251814763.pth.onnx";
+#else
+    const char *envModelPath = getenv("MODEL_PATH");
+    if (strlen(envModelPath)) {
+        _modelPath = QString::fromStdString(envModelPath);
+    } else {
+        _modelPath = "ckpt_e40_0_p25.2163251814763.pth.onnx";
+    }
 #endif
+    qDebug() << "Model path: " << _modelPath << endl;
+
     // 初始化内存全局变量
     int rv;
     rv = SPECTInitialize();
@@ -71,13 +84,12 @@ void ReconThread::reconstruct(SPECTProject &spectProject, const ReconTaskParamet
     }
     spectParam.io_param.outputdir = outputDir.toStdString();
 
-    QElapsedTimer timer;
-
+    Sinogram<float> inputSinogram(param.pathSinogram.toStdString(), kNumSlices, kNumAngles, kNumDetectors);
     if (param.useNN) {
         Scascnet net(_modelPath.toStdString().c_str());
-        Sinogram<float> inputSinogram(param.pathSinogram.toStdString(), kNumSlices, kNumAngles, kNumDetectors);
         qDebug() << "Running neural networks..." << endl;
 
+        QElapsedTimer timer;
         timer.start();
         Sinogram<float> restoredSinogram = net.Run(inputSinogram);
         qDebug() << "Time consumed for restoration: " << timer.elapsed() << " (ms)." << endl;
@@ -95,7 +107,17 @@ void ReconThread::reconstruct(SPECTProject &spectProject, const ReconTaskParamet
         restoredSinogramDouble.WriteToFilePath(restoredSinogramOutputPath);
 
         spectParam.io_param.sino_path = restoredSinogramOutputPath;
-        qDebug() << "Writing result to " << QString::fromStdString(restoredSinogramOutputPath) << endl;
+        qDebug() << "Restored sinogram saved to "
+            << QString::fromStdString(restoredSinogramOutputPath) << endl;
+    } else {
+        Sinogram<double> sinogramDouble = inputSinogram.TransformType<double>();
+        QFileInfo infoInputSinogram(param.pathSinogram);
+        std::string sinogramDoubleOutputPath = QDir(outputDir).filePath(
+                    infoInputSinogram.fileName() + ".sino").toStdString();
+        sinogramDouble.WriteToFilePath(sinogramDoubleOutputPath);
+        qDebug() << "Sinogram (double) saved to "
+            << QString::fromStdString(sinogramDoubleOutputPath) << endl;
+        spectParam.io_param.sino_path = sinogramDoubleOutputPath;
     }
 
     spectParam.io_param.asum_filename = (basename + ".asum").toStdString();
@@ -114,6 +136,8 @@ void ReconThread::reconstruct(SPECTProject &spectProject, const ReconTaskParamet
         exit(-1);
     }
     spectProject.SetSpectParams(spectParam);
+
+    QElapsedTimer timer;
     timer.start();
     spectProject.GenerateBackProject(&_process);
     qDebug() << "Time consumed for reconstruction: " << timer.elapsed() << " (ms)." << endl;
