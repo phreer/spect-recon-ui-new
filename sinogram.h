@@ -56,7 +56,9 @@ public:
     {
         assert(num_slices * num_angles * num_detectors == vec.size());
     }
-    Sinogram(const std::string &path, size_t num_slices, size_t num_angles, size_t num_detectors, bool normalize=true)
+    Sinogram(const std::string &path, size_t num_slices, size_t num_angles,
+             size_t num_detectors, bool normalize=true):
+        num_slices_(num_slices), num_angles_(num_angles), num_detectors_(num_detectors)
     {
         ReadFromFilePath(path, num_slices, num_angles, num_detectors, normalize);
     }
