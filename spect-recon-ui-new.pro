@@ -10,13 +10,46 @@ CONFIG += c++11
 
 PROTOBUF_INCLUDE_DIR = $$(HOME)/local/include
 PROTOBUF_LIB_DIR = $$(HOME)/local/lib
-SPECT_INCLUDE_DIR = ../spect-recon/include
-SPECT_LIB_DIR = $$(HOME)/local/lib
+
+SPECT_OMP_INCLUDE_DIR = ../spect-recon/include
+SPECT_OMP_LIB_DIR = $$(HOME)/local/lib
+
+SPECT_NO_OMP_INCLUDE_DIR = ../spect-recon/include
+SPECT_NO_OMP_LIB_DIR = $$(HOME)/local/lib
 
 ONNXRUNTIME_INCLUDE_DIR = $$(HOME)/local/onnxruntime-linux-x64-1.8.0/include
 ONNXRUNTIME_LIB_DIR = $$(HOME)/local/lib
 
-QMAKE_CXXFLAGS += -fopenmp
+# Set SPECT_TYPE to "OMP" for parallelized (OpenMP) version and "NO_OMP" for plain version.
+SPECT_USE_OMP = "yes"
+USE_APPIMAGE = "yes"
+
+
+equals(SPECT_USE_OMP, "yes") {
+    SPECT_INCLUDE_DIR = $$SPECT_OMP_INCLUDE_DIR
+    SPECT_LIB_DIR = $$SPECT_OMP_LIB_DIR
+} else {
+equals(SPECT_USE_OMP, "no") {
+    SPECT_INCLUDE_DIR = $$SPECT_NO_OMP_INCLUDE_DIR
+    SPECT_LIB_DIR = $$SPECT_NO_OMP_LIB_DIR
+} else {
+    error("SPECT_USE_OMP should be yes or no.")
+}
+}
+
+equals(USE_APPIMAGE, "yes") {
+    DEFINES += USE_APPIMAGE
+}
+
+macx: {
+    PROTOBUF_INCLUDE_DIR = /usr/local/Cellar/protobuf/3.17.2/include/
+    PROTOBUF_LIB_DIR = /usr/local/Cellar/protobuf/3.17.2/lib/
+
+    ONNXRUNTIME_INCLUDE_DIR = /usr/local/Cellar/onnxruntime/1.7.2/include/onnxruntime/core/session
+    ONNXRUNTIME_LIB_DIR = /usr/local/Cellar/onnxruntime/1.7.2/lib
+}
+
+# QMAKE_CXXFLAGS += -fopenmp
 
 LIBS += \
     -L$${PROTOBUF_LIB_DIR} \
@@ -26,8 +59,7 @@ LIBS += \
     -lspect \
     -L$${ONNXRUNTIME_LIB_DIR} \
     -lonnxruntime \
-    -lpthread \
-    -fopenmp
+    -lpthread
 
 message($${LIBS})
 
@@ -37,7 +69,6 @@ INCLUDEPATH += \
     /usr/local/include \
     $${ONNXRUNTIME_INCLUDE_DIR}
 
-message($${INCLUDEPATH})
 SOURCES += \
     main.cpp \
     mainwindow.cpp \
