@@ -223,20 +223,20 @@ void MainWindow::on_pushButtonSelectSysMat_clicked()
 void MainWindow::on_lineEditSysMat_textChanged(const QString &arg1)
 {
     params_[CurrentTaskIndex()].pathSysMat = arg1;
-    ui->pushButtonSave->setEnabled(true);
+    ParamChanged();
 }
 
 
 void MainWindow::on_lineEditOutputDir_textChanged(const QString &arg1)
 {
     params_[CurrentTaskIndex()].outputDir = arg1;
-    ui->pushButtonSave->setEnabled(true);
+    ParamChanged();
 }
 
 void MainWindow::on_lineEditSinogram_textChanged(const QString &arg1)
 {
     params_[CurrentTaskIndex()].pathSinogram = arg1;
-    ui->pushButtonSave->setEnabled(true);
+    ParamChanged();
 }
 
 void MainWindow::on_lineEditNumIters_editingFinished()
