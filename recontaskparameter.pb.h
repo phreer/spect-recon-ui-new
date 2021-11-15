@@ -47,7 +47,7 @@ struct TableStruct_recontaskparameter_2eproto {
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::AuxiliaryParseTableField aux[]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
-  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[1]
+  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[2]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
@@ -58,9 +58,13 @@ namespace recontaskparameter_pb {
 class ReconTaskParameterPB;
 struct ReconTaskParameterPBDefaultTypeInternal;
 extern ReconTaskParameterPBDefaultTypeInternal _ReconTaskParameterPB_default_instance_;
+class Tensor;
+struct TensorDefaultTypeInternal;
+extern TensorDefaultTypeInternal _Tensor_default_instance_;
 }  // namespace recontaskparameter_pb
 PROTOBUF_NAMESPACE_OPEN
 template<> ::recontaskparameter_pb::ReconTaskParameterPB* Arena::CreateMaybeMessage<::recontaskparameter_pb::ReconTaskParameterPB>(Arena*);
+template<> ::recontaskparameter_pb::Tensor* Arena::CreateMaybeMessage<::recontaskparameter_pb::Tensor>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 namespace recontaskparameter_pb {
 
@@ -93,7 +97,238 @@ inline bool ReconTaskParameterPB_IteratorType_Parse(
   return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<ReconTaskParameterPB_IteratorType>(
     ReconTaskParameterPB_IteratorType_descriptor(), name, value);
 }
+enum ReconTaskParameterPB_FileFormat : int {
+  ReconTaskParameterPB_FileFormat_RAW_SINOGRAM = 0,
+  ReconTaskParameterPB_FileFormat_RAW_PROJECTION = 1,
+  ReconTaskParameterPB_FileFormat_DICOM = 2
+};
+bool ReconTaskParameterPB_FileFormat_IsValid(int value);
+constexpr ReconTaskParameterPB_FileFormat ReconTaskParameterPB_FileFormat_FileFormat_MIN = ReconTaskParameterPB_FileFormat_RAW_SINOGRAM;
+constexpr ReconTaskParameterPB_FileFormat ReconTaskParameterPB_FileFormat_FileFormat_MAX = ReconTaskParameterPB_FileFormat_DICOM;
+constexpr int ReconTaskParameterPB_FileFormat_FileFormat_ARRAYSIZE = ReconTaskParameterPB_FileFormat_FileFormat_MAX + 1;
+
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* ReconTaskParameterPB_FileFormat_descriptor();
+template<typename T>
+inline const std::string& ReconTaskParameterPB_FileFormat_Name(T enum_t_value) {
+  static_assert(::std::is_same<T, ReconTaskParameterPB_FileFormat>::value ||
+    ::std::is_integral<T>::value,
+    "Incorrect type passed to function ReconTaskParameterPB_FileFormat_Name.");
+  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
+    ReconTaskParameterPB_FileFormat_descriptor(), enum_t_value);
+}
+inline bool ReconTaskParameterPB_FileFormat_Parse(
+    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, ReconTaskParameterPB_FileFormat* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<ReconTaskParameterPB_FileFormat>(
+    ReconTaskParameterPB_FileFormat_descriptor(), name, value);
+}
+enum ReconTaskParameterPB_FileDataType : int {
+  ReconTaskParameterPB_FileDataType_FLOAT32 = 1,
+  ReconTaskParameterPB_FileDataType_FLOAT64 = 2,
+  ReconTaskParameterPB_FileDataType_INT8 = 3,
+  ReconTaskParameterPB_FileDataType_UINT8 = 4,
+  ReconTaskParameterPB_FileDataType_INT16 = 5,
+  ReconTaskParameterPB_FileDataType_UINT16 = 6,
+  ReconTaskParameterPB_FileDataType_INT32 = 7,
+  ReconTaskParameterPB_FileDataType_UINT32 = 8,
+  ReconTaskParameterPB_FileDataType_INT64 = 9,
+  ReconTaskParameterPB_FileDataType_UINT64 = 10
+};
+bool ReconTaskParameterPB_FileDataType_IsValid(int value);
+constexpr ReconTaskParameterPB_FileDataType ReconTaskParameterPB_FileDataType_FileDataType_MIN = ReconTaskParameterPB_FileDataType_FLOAT32;
+constexpr ReconTaskParameterPB_FileDataType ReconTaskParameterPB_FileDataType_FileDataType_MAX = ReconTaskParameterPB_FileDataType_UINT64;
+constexpr int ReconTaskParameterPB_FileDataType_FileDataType_ARRAYSIZE = ReconTaskParameterPB_FileDataType_FileDataType_MAX + 1;
+
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* ReconTaskParameterPB_FileDataType_descriptor();
+template<typename T>
+inline const std::string& ReconTaskParameterPB_FileDataType_Name(T enum_t_value) {
+  static_assert(::std::is_same<T, ReconTaskParameterPB_FileDataType>::value ||
+    ::std::is_integral<T>::value,
+    "Incorrect type passed to function ReconTaskParameterPB_FileDataType_Name.");
+  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
+    ReconTaskParameterPB_FileDataType_descriptor(), enum_t_value);
+}
+inline bool ReconTaskParameterPB_FileDataType_Parse(
+    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, ReconTaskParameterPB_FileDataType* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<ReconTaskParameterPB_FileDataType>(
+    ReconTaskParameterPB_FileDataType_descriptor(), name, value);
+}
 // ===================================================================
+
+class Tensor final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:recontaskparameter_pb.Tensor) */ {
+ public:
+  inline Tensor() : Tensor(nullptr) {}
+  ~Tensor() override;
+  explicit constexpr Tensor(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  Tensor(const Tensor& from);
+  Tensor(Tensor&& from) noexcept
+    : Tensor() {
+    *this = ::std::move(from);
+  }
+
+  inline Tensor& operator=(const Tensor& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline Tensor& operator=(Tensor&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const {
+    return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance);
+  }
+  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() {
+    return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const Tensor& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const Tensor* internal_default_instance() {
+    return reinterpret_cast<const Tensor*>(
+               &_Tensor_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    0;
+
+  friend void swap(Tensor& a, Tensor& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(Tensor* other) {
+    if (other == this) return;
+    if (GetOwningArena() == other->GetOwningArena()) {
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(Tensor* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline Tensor* New() const final {
+    return new Tensor();
+  }
+
+  Tensor* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<Tensor>(arena);
+  }
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void CopyFrom(const Tensor& from);
+  void MergeFrom(const Tensor& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(Tensor* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "recontaskparameter_pb.Tensor";
+  }
+  protected:
+  explicit Tensor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kDataFieldNumber = 1,
+    kShapeFieldNumber = 2,
+  };
+  // repeated double data = 1;
+  int data_size() const;
+  private:
+  int _internal_data_size() const;
+  public:
+  void clear_data();
+  private:
+  double _internal_data(int index) const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >&
+      _internal_data() const;
+  void _internal_add_data(double value);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >*
+      _internal_mutable_data();
+  public:
+  double data(int index) const;
+  void set_data(int index, double value);
+  void add_data(double value);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >&
+      data() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >*
+      mutable_data();
+
+  // repeated int32 shape = 2;
+  int shape_size() const;
+  private:
+  int _internal_shape_size() const;
+  public:
+  void clear_shape();
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_shape(int index) const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::int32 >&
+      _internal_shape() const;
+  void _internal_add_shape(::PROTOBUF_NAMESPACE_ID::int32 value);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::int32 >*
+      _internal_mutable_shape();
+  public:
+  ::PROTOBUF_NAMESPACE_ID::int32 shape(int index) const;
+  void set_shape(int index, ::PROTOBUF_NAMESPACE_ID::int32 value);
+  void add_shape(::PROTOBUF_NAMESPACE_ID::int32 value);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::int32 >&
+      shape() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::int32 >*
+      mutable_shape();
+
+  // @@protoc_insertion_point(class_scope:recontaskparameter_pb.Tensor)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< double > data_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::int32 > shape_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_recontaskparameter_2eproto;
+};
+// -------------------------------------------------------------------
 
 class ReconTaskParameterPB final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:recontaskparameter_pb.ReconTaskParameterPB) */ {
@@ -146,7 +381,7 @@ class ReconTaskParameterPB final :
                &_ReconTaskParameterPB_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    0;
+    1;
 
   friend void swap(ReconTaskParameterPB& a, ReconTaskParameterPB& b) {
     a.Swap(&b);
@@ -249,24 +484,132 @@ class ReconTaskParameterPB final :
     return ReconTaskParameterPB_IteratorType_Parse(name, value);
   }
 
+  typedef ReconTaskParameterPB_FileFormat FileFormat;
+  static constexpr FileFormat RAW_SINOGRAM =
+    ReconTaskParameterPB_FileFormat_RAW_SINOGRAM;
+  static constexpr FileFormat RAW_PROJECTION =
+    ReconTaskParameterPB_FileFormat_RAW_PROJECTION;
+  static constexpr FileFormat DICOM =
+    ReconTaskParameterPB_FileFormat_DICOM;
+  static inline bool FileFormat_IsValid(int value) {
+    return ReconTaskParameterPB_FileFormat_IsValid(value);
+  }
+  static constexpr FileFormat FileFormat_MIN =
+    ReconTaskParameterPB_FileFormat_FileFormat_MIN;
+  static constexpr FileFormat FileFormat_MAX =
+    ReconTaskParameterPB_FileFormat_FileFormat_MAX;
+  static constexpr int FileFormat_ARRAYSIZE =
+    ReconTaskParameterPB_FileFormat_FileFormat_ARRAYSIZE;
+  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor*
+  FileFormat_descriptor() {
+    return ReconTaskParameterPB_FileFormat_descriptor();
+  }
+  template<typename T>
+  static inline const std::string& FileFormat_Name(T enum_t_value) {
+    static_assert(::std::is_same<T, FileFormat>::value ||
+      ::std::is_integral<T>::value,
+      "Incorrect type passed to function FileFormat_Name.");
+    return ReconTaskParameterPB_FileFormat_Name(enum_t_value);
+  }
+  static inline bool FileFormat_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name,
+      FileFormat* value) {
+    return ReconTaskParameterPB_FileFormat_Parse(name, value);
+  }
+
+  typedef ReconTaskParameterPB_FileDataType FileDataType;
+  static constexpr FileDataType FLOAT32 =
+    ReconTaskParameterPB_FileDataType_FLOAT32;
+  static constexpr FileDataType FLOAT64 =
+    ReconTaskParameterPB_FileDataType_FLOAT64;
+  static constexpr FileDataType INT8 =
+    ReconTaskParameterPB_FileDataType_INT8;
+  static constexpr FileDataType UINT8 =
+    ReconTaskParameterPB_FileDataType_UINT8;
+  static constexpr FileDataType INT16 =
+    ReconTaskParameterPB_FileDataType_INT16;
+  static constexpr FileDataType UINT16 =
+    ReconTaskParameterPB_FileDataType_UINT16;
+  static constexpr FileDataType INT32 =
+    ReconTaskParameterPB_FileDataType_INT32;
+  static constexpr FileDataType UINT32 =
+    ReconTaskParameterPB_FileDataType_UINT32;
+  static constexpr FileDataType INT64 =
+    ReconTaskParameterPB_FileDataType_INT64;
+  static constexpr FileDataType UINT64 =
+    ReconTaskParameterPB_FileDataType_UINT64;
+  static inline bool FileDataType_IsValid(int value) {
+    return ReconTaskParameterPB_FileDataType_IsValid(value);
+  }
+  static constexpr FileDataType FileDataType_MIN =
+    ReconTaskParameterPB_FileDataType_FileDataType_MIN;
+  static constexpr FileDataType FileDataType_MAX =
+    ReconTaskParameterPB_FileDataType_FileDataType_MAX;
+  static constexpr int FileDataType_ARRAYSIZE =
+    ReconTaskParameterPB_FileDataType_FileDataType_ARRAYSIZE;
+  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor*
+  FileDataType_descriptor() {
+    return ReconTaskParameterPB_FileDataType_descriptor();
+  }
+  template<typename T>
+  static inline const std::string& FileDataType_Name(T enum_t_value) {
+    static_assert(::std::is_same<T, FileDataType>::value ||
+      ::std::is_integral<T>::value,
+      "Incorrect type passed to function FileDataType_Name.");
+    return ReconTaskParameterPB_FileDataType_Name(enum_t_value);
+  }
+  static inline bool FileDataType_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name,
+      FileDataType* value) {
+    return ReconTaskParameterPB_FileDataType_Parse(name, value);
+  }
+
   // accessors -------------------------------------------------------
 
   enum : int {
+    kReconstructedTomographsFieldNumber = 21,
     kTaskNameFieldNumber = 1,
     kPathSysmatFieldNumber = 2,
     kPathSinogdramFieldNumber = 3,
     kPathScatterMapFieldNumber = 4,
     kPathMuMapFieldNumber = 5,
     kOutputDirFieldNumber = 13,
-    kUseNnFieldNumber = 6,
-    kUseScatterMapFieldNumber = 7,
+    kPathModelFieldNumber = 23,
+    kSinogramInfoFieldNumber = 26,
+    kSinogramFieldNumber = 19,
+    kProjectionFieldNumber = 20,
     kNumItersFieldNumber = 8,
+    kNumDualItersFieldNumber = 9,
     kGammaFieldNumber = 10,
     kLambdaFieldNumber = 11,
-    kNumDualItersFieldNumber = 9,
+    kCoeffScatterFieldNumber = 12,
+    kUseNnFieldNumber = 6,
+    kUseScatterMapFieldNumber = 7,
+    kDoneFieldNumber = 22,
     kIteratorFieldNumber = 14,
-    kScatterCoeffFieldNumber = 12,
+    kFileFormatFieldNumber = 15,
+    kNumInputImagesFieldNumber = 16,
+    kSinogramSliceIndexFieldNumber = 18,
+    kIndexSinogramFieldNumber = 24,
+    kIndexProjectionFieldNumber = 25,
+    kFileDataTypeFieldNumber = 17,
   };
+  // repeated .recontaskparameter_pb.Tensor reconstructed_tomographs = 21;
+  int reconstructed_tomographs_size() const;
+  private:
+  int _internal_reconstructed_tomographs_size() const;
+  public:
+  void clear_reconstructed_tomographs();
+  ::recontaskparameter_pb::Tensor* mutable_reconstructed_tomographs(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::recontaskparameter_pb::Tensor >*
+      mutable_reconstructed_tomographs();
+  private:
+  const ::recontaskparameter_pb::Tensor& _internal_reconstructed_tomographs(int index) const;
+  ::recontaskparameter_pb::Tensor* _internal_add_reconstructed_tomographs();
+  public:
+  const ::recontaskparameter_pb::Tensor& reconstructed_tomographs(int index) const;
+  ::recontaskparameter_pb::Tensor* add_reconstructed_tomographs();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::recontaskparameter_pb::Tensor >&
+      reconstructed_tomographs() const;
+
   // required string task_name = 1;
   bool has_task_name() const;
   private:
@@ -375,31 +718,77 @@ class ReconTaskParameterPB final :
   std::string* _internal_mutable_output_dir();
   public:
 
-  // required bool use_nn = 6;
-  bool has_use_nn() const;
+  // required string path_model = 23;
+  bool has_path_model() const;
   private:
-  bool _internal_has_use_nn() const;
+  bool _internal_has_path_model() const;
   public:
-  void clear_use_nn();
-  bool use_nn() const;
-  void set_use_nn(bool value);
+  void clear_path_model();
+  const std::string& path_model() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_path_model(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_path_model();
+  PROTOBUF_FUTURE_MUST_USE_RESULT std::string* release_path_model();
+  void set_allocated_path_model(std::string* path_model);
   private:
-  bool _internal_use_nn() const;
-  void _internal_set_use_nn(bool value);
+  const std::string& _internal_path_model() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_path_model(const std::string& value);
+  std::string* _internal_mutable_path_model();
   public:
 
-  // required bool use_scatter_map = 7;
-  bool has_use_scatter_map() const;
+  // required string sinogram_info = 26;
+  bool has_sinogram_info() const;
   private:
-  bool _internal_has_use_scatter_map() const;
+  bool _internal_has_sinogram_info() const;
   public:
-  void clear_use_scatter_map();
-  bool use_scatter_map() const;
-  void set_use_scatter_map(bool value);
+  void clear_sinogram_info();
+  const std::string& sinogram_info() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_sinogram_info(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_sinogram_info();
+  PROTOBUF_FUTURE_MUST_USE_RESULT std::string* release_sinogram_info();
+  void set_allocated_sinogram_info(std::string* sinogram_info);
   private:
-  bool _internal_use_scatter_map() const;
-  void _internal_set_use_scatter_map(bool value);
+  const std::string& _internal_sinogram_info() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_sinogram_info(const std::string& value);
+  std::string* _internal_mutable_sinogram_info();
   public:
+
+  // optional .recontaskparameter_pb.Tensor sinogram = 19;
+  bool has_sinogram() const;
+  private:
+  bool _internal_has_sinogram() const;
+  public:
+  void clear_sinogram();
+  const ::recontaskparameter_pb::Tensor& sinogram() const;
+  PROTOBUF_FUTURE_MUST_USE_RESULT ::recontaskparameter_pb::Tensor* release_sinogram();
+  ::recontaskparameter_pb::Tensor* mutable_sinogram();
+  void set_allocated_sinogram(::recontaskparameter_pb::Tensor* sinogram);
+  private:
+  const ::recontaskparameter_pb::Tensor& _internal_sinogram() const;
+  ::recontaskparameter_pb::Tensor* _internal_mutable_sinogram();
+  public:
+  void unsafe_arena_set_allocated_sinogram(
+      ::recontaskparameter_pb::Tensor* sinogram);
+  ::recontaskparameter_pb::Tensor* unsafe_arena_release_sinogram();
+
+  // optional .recontaskparameter_pb.Tensor projection = 20;
+  bool has_projection() const;
+  private:
+  bool _internal_has_projection() const;
+  public:
+  void clear_projection();
+  const ::recontaskparameter_pb::Tensor& projection() const;
+  PROTOBUF_FUTURE_MUST_USE_RESULT ::recontaskparameter_pb::Tensor* release_projection();
+  ::recontaskparameter_pb::Tensor* mutable_projection();
+  void set_allocated_projection(::recontaskparameter_pb::Tensor* projection);
+  private:
+  const ::recontaskparameter_pb::Tensor& _internal_projection() const;
+  ::recontaskparameter_pb::Tensor* _internal_mutable_projection();
+  public:
+  void unsafe_arena_set_allocated_projection(
+      ::recontaskparameter_pb::Tensor* projection);
+  ::recontaskparameter_pb::Tensor* unsafe_arena_release_projection();
 
   // required int32 num_iters = 8;
   bool has_num_iters() const;
@@ -412,6 +801,19 @@ class ReconTaskParameterPB final :
   private:
   ::PROTOBUF_NAMESPACE_ID::int32 _internal_num_iters() const;
   void _internal_set_num_iters(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // required int32 num_dual_iters = 9;
+  bool has_num_dual_iters() const;
+  private:
+  bool _internal_has_num_dual_iters() const;
+  public:
+  void clear_num_dual_iters();
+  ::PROTOBUF_NAMESPACE_ID::int32 num_dual_iters() const;
+  void set_num_dual_iters(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_num_dual_iters() const;
+  void _internal_set_num_dual_iters(::PROTOBUF_NAMESPACE_ID::int32 value);
   public:
 
   // required double gamma = 10;
@@ -440,17 +842,56 @@ class ReconTaskParameterPB final :
   void _internal_set_lambda(double value);
   public:
 
-  // required int32 num_dual_iters = 9;
-  bool has_num_dual_iters() const;
+  // optional double coeff_scatter = 12;
+  bool has_coeff_scatter() const;
   private:
-  bool _internal_has_num_dual_iters() const;
+  bool _internal_has_coeff_scatter() const;
   public:
-  void clear_num_dual_iters();
-  ::PROTOBUF_NAMESPACE_ID::int32 num_dual_iters() const;
-  void set_num_dual_iters(::PROTOBUF_NAMESPACE_ID::int32 value);
+  void clear_coeff_scatter();
+  double coeff_scatter() const;
+  void set_coeff_scatter(double value);
   private:
-  ::PROTOBUF_NAMESPACE_ID::int32 _internal_num_dual_iters() const;
-  void _internal_set_num_dual_iters(::PROTOBUF_NAMESPACE_ID::int32 value);
+  double _internal_coeff_scatter() const;
+  void _internal_set_coeff_scatter(double value);
+  public:
+
+  // required bool use_nn = 6;
+  bool has_use_nn() const;
+  private:
+  bool _internal_has_use_nn() const;
+  public:
+  void clear_use_nn();
+  bool use_nn() const;
+  void set_use_nn(bool value);
+  private:
+  bool _internal_use_nn() const;
+  void _internal_set_use_nn(bool value);
+  public:
+
+  // required bool use_scatter_map = 7;
+  bool has_use_scatter_map() const;
+  private:
+  bool _internal_has_use_scatter_map() const;
+  public:
+  void clear_use_scatter_map();
+  bool use_scatter_map() const;
+  void set_use_scatter_map(bool value);
+  private:
+  bool _internal_use_scatter_map() const;
+  void _internal_set_use_scatter_map(bool value);
+  public:
+
+  // required bool done = 22;
+  bool has_done() const;
+  private:
+  bool _internal_has_done() const;
+  public:
+  void clear_done();
+  bool done() const;
+  void set_done(bool value);
+  private:
+  bool _internal_done() const;
+  void _internal_set_done(bool value);
   public:
 
   // required .recontaskparameter_pb.ReconTaskParameterPB.IteratorType iterator = 14;
@@ -466,17 +907,82 @@ class ReconTaskParameterPB final :
   void _internal_set_iterator(::recontaskparameter_pb::ReconTaskParameterPB_IteratorType value);
   public:
 
-  // optional double scatter_coeff = 12;
-  bool has_scatter_coeff() const;
+  // required .recontaskparameter_pb.ReconTaskParameterPB.FileFormat file_format = 15;
+  bool has_file_format() const;
   private:
-  bool _internal_has_scatter_coeff() const;
+  bool _internal_has_file_format() const;
   public:
-  void clear_scatter_coeff();
-  double scatter_coeff() const;
-  void set_scatter_coeff(double value);
+  void clear_file_format();
+  ::recontaskparameter_pb::ReconTaskParameterPB_FileFormat file_format() const;
+  void set_file_format(::recontaskparameter_pb::ReconTaskParameterPB_FileFormat value);
   private:
-  double _internal_scatter_coeff() const;
-  void _internal_set_scatter_coeff(double value);
+  ::recontaskparameter_pb::ReconTaskParameterPB_FileFormat _internal_file_format() const;
+  void _internal_set_file_format(::recontaskparameter_pb::ReconTaskParameterPB_FileFormat value);
+  public:
+
+  // required int32 num_input_images = 16;
+  bool has_num_input_images() const;
+  private:
+  bool _internal_has_num_input_images() const;
+  public:
+  void clear_num_input_images();
+  ::PROTOBUF_NAMESPACE_ID::int32 num_input_images() const;
+  void set_num_input_images(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_num_input_images() const;
+  void _internal_set_num_input_images(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // required int32 sinogram_slice_index = 18;
+  bool has_sinogram_slice_index() const;
+  private:
+  bool _internal_has_sinogram_slice_index() const;
+  public:
+  void clear_sinogram_slice_index();
+  ::PROTOBUF_NAMESPACE_ID::int32 sinogram_slice_index() const;
+  void set_sinogram_slice_index(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_sinogram_slice_index() const;
+  void _internal_set_sinogram_slice_index(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // required int32 index_sinogram = 24;
+  bool has_index_sinogram() const;
+  private:
+  bool _internal_has_index_sinogram() const;
+  public:
+  void clear_index_sinogram();
+  ::PROTOBUF_NAMESPACE_ID::int32 index_sinogram() const;
+  void set_index_sinogram(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_index_sinogram() const;
+  void _internal_set_index_sinogram(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // required int32 index_projection = 25;
+  bool has_index_projection() const;
+  private:
+  bool _internal_has_index_projection() const;
+  public:
+  void clear_index_projection();
+  ::PROTOBUF_NAMESPACE_ID::int32 index_projection() const;
+  void set_index_projection(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_index_projection() const;
+  void _internal_set_index_projection(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // required .recontaskparameter_pb.ReconTaskParameterPB.FileDataType file_data_type = 17;
+  bool has_file_data_type() const;
+  private:
+  bool _internal_has_file_data_type() const;
+  public:
+  void clear_file_data_type();
+  ::recontaskparameter_pb::ReconTaskParameterPB_FileDataType file_data_type() const;
+  void set_file_data_type(::recontaskparameter_pb::ReconTaskParameterPB_FileDataType value);
+  private:
+  ::recontaskparameter_pb::ReconTaskParameterPB_FileDataType _internal_file_data_type() const;
+  void _internal_set_file_data_type(::recontaskparameter_pb::ReconTaskParameterPB_FileDataType value);
   public:
 
   // @@protoc_insertion_point(class_scope:recontaskparameter_pb.ReconTaskParameterPB)
@@ -491,20 +997,32 @@ class ReconTaskParameterPB final :
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::internal::HasBits<1> _has_bits_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::recontaskparameter_pb::Tensor > reconstructed_tomographs_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr task_name_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr path_sysmat_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr path_sinogdram_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr path_scatter_map_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr path_mu_map_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr output_dir_;
-  bool use_nn_;
-  bool use_scatter_map_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr path_model_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr sinogram_info_;
+  ::recontaskparameter_pb::Tensor* sinogram_;
+  ::recontaskparameter_pb::Tensor* projection_;
   ::PROTOBUF_NAMESPACE_ID::int32 num_iters_;
+  ::PROTOBUF_NAMESPACE_ID::int32 num_dual_iters_;
   double gamma_;
   double lambda_;
-  ::PROTOBUF_NAMESPACE_ID::int32 num_dual_iters_;
+  double coeff_scatter_;
+  bool use_nn_;
+  bool use_scatter_map_;
+  bool done_;
   int iterator_;
-  double scatter_coeff_;
+  int file_format_;
+  ::PROTOBUF_NAMESPACE_ID::int32 num_input_images_;
+  ::PROTOBUF_NAMESPACE_ID::int32 sinogram_slice_index_;
+  ::PROTOBUF_NAMESPACE_ID::int32 index_sinogram_;
+  ::PROTOBUF_NAMESPACE_ID::int32 index_projection_;
+  int file_data_type_;
   friend struct ::TableStruct_recontaskparameter_2eproto;
 };
 // ===================================================================
@@ -516,6 +1034,104 @@ class ReconTaskParameterPB final :
   #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif  // __GNUC__
+// Tensor
+
+// repeated double data = 1;
+inline int Tensor::_internal_data_size() const {
+  return data_.size();
+}
+inline int Tensor::data_size() const {
+  return _internal_data_size();
+}
+inline void Tensor::clear_data() {
+  data_.Clear();
+}
+inline double Tensor::_internal_data(int index) const {
+  return data_.Get(index);
+}
+inline double Tensor::data(int index) const {
+  // @@protoc_insertion_point(field_get:recontaskparameter_pb.Tensor.data)
+  return _internal_data(index);
+}
+inline void Tensor::set_data(int index, double value) {
+  data_.Set(index, value);
+  // @@protoc_insertion_point(field_set:recontaskparameter_pb.Tensor.data)
+}
+inline void Tensor::_internal_add_data(double value) {
+  data_.Add(value);
+}
+inline void Tensor::add_data(double value) {
+  _internal_add_data(value);
+  // @@protoc_insertion_point(field_add:recontaskparameter_pb.Tensor.data)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >&
+Tensor::_internal_data() const {
+  return data_;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >&
+Tensor::data() const {
+  // @@protoc_insertion_point(field_list:recontaskparameter_pb.Tensor.data)
+  return _internal_data();
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >*
+Tensor::_internal_mutable_data() {
+  return &data_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >*
+Tensor::mutable_data() {
+  // @@protoc_insertion_point(field_mutable_list:recontaskparameter_pb.Tensor.data)
+  return _internal_mutable_data();
+}
+
+// repeated int32 shape = 2;
+inline int Tensor::_internal_shape_size() const {
+  return shape_.size();
+}
+inline int Tensor::shape_size() const {
+  return _internal_shape_size();
+}
+inline void Tensor::clear_shape() {
+  shape_.Clear();
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 Tensor::_internal_shape(int index) const {
+  return shape_.Get(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 Tensor::shape(int index) const {
+  // @@protoc_insertion_point(field_get:recontaskparameter_pb.Tensor.shape)
+  return _internal_shape(index);
+}
+inline void Tensor::set_shape(int index, ::PROTOBUF_NAMESPACE_ID::int32 value) {
+  shape_.Set(index, value);
+  // @@protoc_insertion_point(field_set:recontaskparameter_pb.Tensor.shape)
+}
+inline void Tensor::_internal_add_shape(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  shape_.Add(value);
+}
+inline void Tensor::add_shape(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_add_shape(value);
+  // @@protoc_insertion_point(field_add:recontaskparameter_pb.Tensor.shape)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::int32 >&
+Tensor::_internal_shape() const {
+  return shape_;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::int32 >&
+Tensor::shape() const {
+  // @@protoc_insertion_point(field_list:recontaskparameter_pb.Tensor.shape)
+  return _internal_shape();
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::int32 >*
+Tensor::_internal_mutable_shape() {
+  return &shape_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::int32 >*
+Tensor::mutable_shape() {
+  // @@protoc_insertion_point(field_mutable_list:recontaskparameter_pb.Tensor.shape)
+  return _internal_mutable_shape();
+}
+
+// -------------------------------------------------------------------
+
 // ReconTaskParameterPB
 
 // required string task_name = 1;
@@ -805,7 +1421,7 @@ inline void ReconTaskParameterPB::set_allocated_path_mu_map(std::string* path_mu
 
 // required bool use_nn = 6;
 inline bool ReconTaskParameterPB::_internal_has_use_nn() const {
-  bool value = (_has_bits_[0] & 0x00000040u) != 0;
+  bool value = (_has_bits_[0] & 0x00008000u) != 0;
   return value;
 }
 inline bool ReconTaskParameterPB::has_use_nn() const {
@@ -813,7 +1429,7 @@ inline bool ReconTaskParameterPB::has_use_nn() const {
 }
 inline void ReconTaskParameterPB::clear_use_nn() {
   use_nn_ = false;
-  _has_bits_[0] &= ~0x00000040u;
+  _has_bits_[0] &= ~0x00008000u;
 }
 inline bool ReconTaskParameterPB::_internal_use_nn() const {
   return use_nn_;
@@ -823,7 +1439,7 @@ inline bool ReconTaskParameterPB::use_nn() const {
   return _internal_use_nn();
 }
 inline void ReconTaskParameterPB::_internal_set_use_nn(bool value) {
-  _has_bits_[0] |= 0x00000040u;
+  _has_bits_[0] |= 0x00008000u;
   use_nn_ = value;
 }
 inline void ReconTaskParameterPB::set_use_nn(bool value) {
@@ -833,7 +1449,7 @@ inline void ReconTaskParameterPB::set_use_nn(bool value) {
 
 // required bool use_scatter_map = 7;
 inline bool ReconTaskParameterPB::_internal_has_use_scatter_map() const {
-  bool value = (_has_bits_[0] & 0x00000080u) != 0;
+  bool value = (_has_bits_[0] & 0x00010000u) != 0;
   return value;
 }
 inline bool ReconTaskParameterPB::has_use_scatter_map() const {
@@ -841,7 +1457,7 @@ inline bool ReconTaskParameterPB::has_use_scatter_map() const {
 }
 inline void ReconTaskParameterPB::clear_use_scatter_map() {
   use_scatter_map_ = false;
-  _has_bits_[0] &= ~0x00000080u;
+  _has_bits_[0] &= ~0x00010000u;
 }
 inline bool ReconTaskParameterPB::_internal_use_scatter_map() const {
   return use_scatter_map_;
@@ -851,7 +1467,7 @@ inline bool ReconTaskParameterPB::use_scatter_map() const {
   return _internal_use_scatter_map();
 }
 inline void ReconTaskParameterPB::_internal_set_use_scatter_map(bool value) {
-  _has_bits_[0] |= 0x00000080u;
+  _has_bits_[0] |= 0x00010000u;
   use_scatter_map_ = value;
 }
 inline void ReconTaskParameterPB::set_use_scatter_map(bool value) {
@@ -861,7 +1477,7 @@ inline void ReconTaskParameterPB::set_use_scatter_map(bool value) {
 
 // required int32 num_iters = 8;
 inline bool ReconTaskParameterPB::_internal_has_num_iters() const {
-  bool value = (_has_bits_[0] & 0x00000100u) != 0;
+  bool value = (_has_bits_[0] & 0x00000400u) != 0;
   return value;
 }
 inline bool ReconTaskParameterPB::has_num_iters() const {
@@ -869,7 +1485,7 @@ inline bool ReconTaskParameterPB::has_num_iters() const {
 }
 inline void ReconTaskParameterPB::clear_num_iters() {
   num_iters_ = 0;
-  _has_bits_[0] &= ~0x00000100u;
+  _has_bits_[0] &= ~0x00000400u;
 }
 inline ::PROTOBUF_NAMESPACE_ID::int32 ReconTaskParameterPB::_internal_num_iters() const {
   return num_iters_;
@@ -879,7 +1495,7 @@ inline ::PROTOBUF_NAMESPACE_ID::int32 ReconTaskParameterPB::num_iters() const {
   return _internal_num_iters();
 }
 inline void ReconTaskParameterPB::_internal_set_num_iters(::PROTOBUF_NAMESPACE_ID::int32 value) {
-  _has_bits_[0] |= 0x00000100u;
+  _has_bits_[0] |= 0x00000400u;
   num_iters_ = value;
 }
 inline void ReconTaskParameterPB::set_num_iters(::PROTOBUF_NAMESPACE_ID::int32 value) {
@@ -917,7 +1533,7 @@ inline void ReconTaskParameterPB::set_num_dual_iters(::PROTOBUF_NAMESPACE_ID::in
 
 // required double gamma = 10;
 inline bool ReconTaskParameterPB::_internal_has_gamma() const {
-  bool value = (_has_bits_[0] & 0x00000200u) != 0;
+  bool value = (_has_bits_[0] & 0x00001000u) != 0;
   return value;
 }
 inline bool ReconTaskParameterPB::has_gamma() const {
@@ -925,7 +1541,7 @@ inline bool ReconTaskParameterPB::has_gamma() const {
 }
 inline void ReconTaskParameterPB::clear_gamma() {
   gamma_ = 0;
-  _has_bits_[0] &= ~0x00000200u;
+  _has_bits_[0] &= ~0x00001000u;
 }
 inline double ReconTaskParameterPB::_internal_gamma() const {
   return gamma_;
@@ -935,7 +1551,7 @@ inline double ReconTaskParameterPB::gamma() const {
   return _internal_gamma();
 }
 inline void ReconTaskParameterPB::_internal_set_gamma(double value) {
-  _has_bits_[0] |= 0x00000200u;
+  _has_bits_[0] |= 0x00001000u;
   gamma_ = value;
 }
 inline void ReconTaskParameterPB::set_gamma(double value) {
@@ -945,7 +1561,7 @@ inline void ReconTaskParameterPB::set_gamma(double value) {
 
 // required double lambda = 11;
 inline bool ReconTaskParameterPB::_internal_has_lambda() const {
-  bool value = (_has_bits_[0] & 0x00000400u) != 0;
+  bool value = (_has_bits_[0] & 0x00002000u) != 0;
   return value;
 }
 inline bool ReconTaskParameterPB::has_lambda() const {
@@ -953,7 +1569,7 @@ inline bool ReconTaskParameterPB::has_lambda() const {
 }
 inline void ReconTaskParameterPB::clear_lambda() {
   lambda_ = 0;
-  _has_bits_[0] &= ~0x00000400u;
+  _has_bits_[0] &= ~0x00002000u;
 }
 inline double ReconTaskParameterPB::_internal_lambda() const {
   return lambda_;
@@ -963,7 +1579,7 @@ inline double ReconTaskParameterPB::lambda() const {
   return _internal_lambda();
 }
 inline void ReconTaskParameterPB::_internal_set_lambda(double value) {
-  _has_bits_[0] |= 0x00000400u;
+  _has_bits_[0] |= 0x00002000u;
   lambda_ = value;
 }
 inline void ReconTaskParameterPB::set_lambda(double value) {
@@ -971,32 +1587,32 @@ inline void ReconTaskParameterPB::set_lambda(double value) {
   // @@protoc_insertion_point(field_set:recontaskparameter_pb.ReconTaskParameterPB.lambda)
 }
 
-// optional double scatter_coeff = 12;
-inline bool ReconTaskParameterPB::_internal_has_scatter_coeff() const {
-  bool value = (_has_bits_[0] & 0x00002000u) != 0;
+// optional double coeff_scatter = 12;
+inline bool ReconTaskParameterPB::_internal_has_coeff_scatter() const {
+  bool value = (_has_bits_[0] & 0x00004000u) != 0;
   return value;
 }
-inline bool ReconTaskParameterPB::has_scatter_coeff() const {
-  return _internal_has_scatter_coeff();
+inline bool ReconTaskParameterPB::has_coeff_scatter() const {
+  return _internal_has_coeff_scatter();
 }
-inline void ReconTaskParameterPB::clear_scatter_coeff() {
-  scatter_coeff_ = 0;
-  _has_bits_[0] &= ~0x00002000u;
+inline void ReconTaskParameterPB::clear_coeff_scatter() {
+  coeff_scatter_ = 0;
+  _has_bits_[0] &= ~0x00004000u;
 }
-inline double ReconTaskParameterPB::_internal_scatter_coeff() const {
-  return scatter_coeff_;
+inline double ReconTaskParameterPB::_internal_coeff_scatter() const {
+  return coeff_scatter_;
 }
-inline double ReconTaskParameterPB::scatter_coeff() const {
-  // @@protoc_insertion_point(field_get:recontaskparameter_pb.ReconTaskParameterPB.scatter_coeff)
-  return _internal_scatter_coeff();
+inline double ReconTaskParameterPB::coeff_scatter() const {
+  // @@protoc_insertion_point(field_get:recontaskparameter_pb.ReconTaskParameterPB.coeff_scatter)
+  return _internal_coeff_scatter();
 }
-inline void ReconTaskParameterPB::_internal_set_scatter_coeff(double value) {
-  _has_bits_[0] |= 0x00002000u;
-  scatter_coeff_ = value;
+inline void ReconTaskParameterPB::_internal_set_coeff_scatter(double value) {
+  _has_bits_[0] |= 0x00004000u;
+  coeff_scatter_ = value;
 }
-inline void ReconTaskParameterPB::set_scatter_coeff(double value) {
-  _internal_set_scatter_coeff(value);
-  // @@protoc_insertion_point(field_set:recontaskparameter_pb.ReconTaskParameterPB.scatter_coeff)
+inline void ReconTaskParameterPB::set_coeff_scatter(double value) {
+  _internal_set_coeff_scatter(value);
+  // @@protoc_insertion_point(field_set:recontaskparameter_pb.ReconTaskParameterPB.coeff_scatter)
 }
 
 // required string output_dir = 13;
@@ -1058,7 +1674,7 @@ inline void ReconTaskParameterPB::set_allocated_output_dir(std::string* output_d
 
 // required .recontaskparameter_pb.ReconTaskParameterPB.IteratorType iterator = 14;
 inline bool ReconTaskParameterPB::_internal_has_iterator() const {
-  bool value = (_has_bits_[0] & 0x00001000u) != 0;
+  bool value = (_has_bits_[0] & 0x00040000u) != 0;
   return value;
 }
 inline bool ReconTaskParameterPB::has_iterator() const {
@@ -1066,7 +1682,7 @@ inline bool ReconTaskParameterPB::has_iterator() const {
 }
 inline void ReconTaskParameterPB::clear_iterator() {
   iterator_ = 0;
-  _has_bits_[0] &= ~0x00001000u;
+  _has_bits_[0] &= ~0x00040000u;
 }
 inline ::recontaskparameter_pb::ReconTaskParameterPB_IteratorType ReconTaskParameterPB::_internal_iterator() const {
   return static_cast< ::recontaskparameter_pb::ReconTaskParameterPB_IteratorType >(iterator_);
@@ -1077,7 +1693,7 @@ inline ::recontaskparameter_pb::ReconTaskParameterPB_IteratorType ReconTaskParam
 }
 inline void ReconTaskParameterPB::_internal_set_iterator(::recontaskparameter_pb::ReconTaskParameterPB_IteratorType value) {
   assert(::recontaskparameter_pb::ReconTaskParameterPB_IteratorType_IsValid(value));
-  _has_bits_[0] |= 0x00001000u;
+  _has_bits_[0] |= 0x00040000u;
   iterator_ = value;
 }
 inline void ReconTaskParameterPB::set_iterator(::recontaskparameter_pb::ReconTaskParameterPB_IteratorType value) {
@@ -1085,9 +1701,528 @@ inline void ReconTaskParameterPB::set_iterator(::recontaskparameter_pb::ReconTas
   // @@protoc_insertion_point(field_set:recontaskparameter_pb.ReconTaskParameterPB.iterator)
 }
 
+// required .recontaskparameter_pb.ReconTaskParameterPB.FileFormat file_format = 15;
+inline bool ReconTaskParameterPB::_internal_has_file_format() const {
+  bool value = (_has_bits_[0] & 0x00080000u) != 0;
+  return value;
+}
+inline bool ReconTaskParameterPB::has_file_format() const {
+  return _internal_has_file_format();
+}
+inline void ReconTaskParameterPB::clear_file_format() {
+  file_format_ = 0;
+  _has_bits_[0] &= ~0x00080000u;
+}
+inline ::recontaskparameter_pb::ReconTaskParameterPB_FileFormat ReconTaskParameterPB::_internal_file_format() const {
+  return static_cast< ::recontaskparameter_pb::ReconTaskParameterPB_FileFormat >(file_format_);
+}
+inline ::recontaskparameter_pb::ReconTaskParameterPB_FileFormat ReconTaskParameterPB::file_format() const {
+  // @@protoc_insertion_point(field_get:recontaskparameter_pb.ReconTaskParameterPB.file_format)
+  return _internal_file_format();
+}
+inline void ReconTaskParameterPB::_internal_set_file_format(::recontaskparameter_pb::ReconTaskParameterPB_FileFormat value) {
+  assert(::recontaskparameter_pb::ReconTaskParameterPB_FileFormat_IsValid(value));
+  _has_bits_[0] |= 0x00080000u;
+  file_format_ = value;
+}
+inline void ReconTaskParameterPB::set_file_format(::recontaskparameter_pb::ReconTaskParameterPB_FileFormat value) {
+  _internal_set_file_format(value);
+  // @@protoc_insertion_point(field_set:recontaskparameter_pb.ReconTaskParameterPB.file_format)
+}
+
+// required int32 num_input_images = 16;
+inline bool ReconTaskParameterPB::_internal_has_num_input_images() const {
+  bool value = (_has_bits_[0] & 0x00100000u) != 0;
+  return value;
+}
+inline bool ReconTaskParameterPB::has_num_input_images() const {
+  return _internal_has_num_input_images();
+}
+inline void ReconTaskParameterPB::clear_num_input_images() {
+  num_input_images_ = 0;
+  _has_bits_[0] &= ~0x00100000u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 ReconTaskParameterPB::_internal_num_input_images() const {
+  return num_input_images_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 ReconTaskParameterPB::num_input_images() const {
+  // @@protoc_insertion_point(field_get:recontaskparameter_pb.ReconTaskParameterPB.num_input_images)
+  return _internal_num_input_images();
+}
+inline void ReconTaskParameterPB::_internal_set_num_input_images(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _has_bits_[0] |= 0x00100000u;
+  num_input_images_ = value;
+}
+inline void ReconTaskParameterPB::set_num_input_images(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_num_input_images(value);
+  // @@protoc_insertion_point(field_set:recontaskparameter_pb.ReconTaskParameterPB.num_input_images)
+}
+
+// required .recontaskparameter_pb.ReconTaskParameterPB.FileDataType file_data_type = 17;
+inline bool ReconTaskParameterPB::_internal_has_file_data_type() const {
+  bool value = (_has_bits_[0] & 0x01000000u) != 0;
+  return value;
+}
+inline bool ReconTaskParameterPB::has_file_data_type() const {
+  return _internal_has_file_data_type();
+}
+inline void ReconTaskParameterPB::clear_file_data_type() {
+  file_data_type_ = 1;
+  _has_bits_[0] &= ~0x01000000u;
+}
+inline ::recontaskparameter_pb::ReconTaskParameterPB_FileDataType ReconTaskParameterPB::_internal_file_data_type() const {
+  return static_cast< ::recontaskparameter_pb::ReconTaskParameterPB_FileDataType >(file_data_type_);
+}
+inline ::recontaskparameter_pb::ReconTaskParameterPB_FileDataType ReconTaskParameterPB::file_data_type() const {
+  // @@protoc_insertion_point(field_get:recontaskparameter_pb.ReconTaskParameterPB.file_data_type)
+  return _internal_file_data_type();
+}
+inline void ReconTaskParameterPB::_internal_set_file_data_type(::recontaskparameter_pb::ReconTaskParameterPB_FileDataType value) {
+  assert(::recontaskparameter_pb::ReconTaskParameterPB_FileDataType_IsValid(value));
+  _has_bits_[0] |= 0x01000000u;
+  file_data_type_ = value;
+}
+inline void ReconTaskParameterPB::set_file_data_type(::recontaskparameter_pb::ReconTaskParameterPB_FileDataType value) {
+  _internal_set_file_data_type(value);
+  // @@protoc_insertion_point(field_set:recontaskparameter_pb.ReconTaskParameterPB.file_data_type)
+}
+
+// required int32 sinogram_slice_index = 18;
+inline bool ReconTaskParameterPB::_internal_has_sinogram_slice_index() const {
+  bool value = (_has_bits_[0] & 0x00200000u) != 0;
+  return value;
+}
+inline bool ReconTaskParameterPB::has_sinogram_slice_index() const {
+  return _internal_has_sinogram_slice_index();
+}
+inline void ReconTaskParameterPB::clear_sinogram_slice_index() {
+  sinogram_slice_index_ = 0;
+  _has_bits_[0] &= ~0x00200000u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 ReconTaskParameterPB::_internal_sinogram_slice_index() const {
+  return sinogram_slice_index_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 ReconTaskParameterPB::sinogram_slice_index() const {
+  // @@protoc_insertion_point(field_get:recontaskparameter_pb.ReconTaskParameterPB.sinogram_slice_index)
+  return _internal_sinogram_slice_index();
+}
+inline void ReconTaskParameterPB::_internal_set_sinogram_slice_index(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _has_bits_[0] |= 0x00200000u;
+  sinogram_slice_index_ = value;
+}
+inline void ReconTaskParameterPB::set_sinogram_slice_index(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_sinogram_slice_index(value);
+  // @@protoc_insertion_point(field_set:recontaskparameter_pb.ReconTaskParameterPB.sinogram_slice_index)
+}
+
+// optional .recontaskparameter_pb.Tensor sinogram = 19;
+inline bool ReconTaskParameterPB::_internal_has_sinogram() const {
+  bool value = (_has_bits_[0] & 0x00000100u) != 0;
+  PROTOBUF_ASSUME(!value || sinogram_ != nullptr);
+  return value;
+}
+inline bool ReconTaskParameterPB::has_sinogram() const {
+  return _internal_has_sinogram();
+}
+inline void ReconTaskParameterPB::clear_sinogram() {
+  if (sinogram_ != nullptr) sinogram_->Clear();
+  _has_bits_[0] &= ~0x00000100u;
+}
+inline const ::recontaskparameter_pb::Tensor& ReconTaskParameterPB::_internal_sinogram() const {
+  const ::recontaskparameter_pb::Tensor* p = sinogram_;
+  return p != nullptr ? *p : reinterpret_cast<const ::recontaskparameter_pb::Tensor&>(
+      ::recontaskparameter_pb::_Tensor_default_instance_);
+}
+inline const ::recontaskparameter_pb::Tensor& ReconTaskParameterPB::sinogram() const {
+  // @@protoc_insertion_point(field_get:recontaskparameter_pb.ReconTaskParameterPB.sinogram)
+  return _internal_sinogram();
+}
+inline void ReconTaskParameterPB::unsafe_arena_set_allocated_sinogram(
+    ::recontaskparameter_pb::Tensor* sinogram) {
+  if (GetArenaForAllocation() == nullptr) {
+    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(sinogram_);
+  }
+  sinogram_ = sinogram;
+  if (sinogram) {
+    _has_bits_[0] |= 0x00000100u;
+  } else {
+    _has_bits_[0] &= ~0x00000100u;
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:recontaskparameter_pb.ReconTaskParameterPB.sinogram)
+}
+inline ::recontaskparameter_pb::Tensor* ReconTaskParameterPB::release_sinogram() {
+  _has_bits_[0] &= ~0x00000100u;
+  ::recontaskparameter_pb::Tensor* temp = sinogram_;
+  sinogram_ = nullptr;
+  if (GetArenaForAllocation() != nullptr) {
+    temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  }
+  return temp;
+}
+inline ::recontaskparameter_pb::Tensor* ReconTaskParameterPB::unsafe_arena_release_sinogram() {
+  // @@protoc_insertion_point(field_release:recontaskparameter_pb.ReconTaskParameterPB.sinogram)
+  _has_bits_[0] &= ~0x00000100u;
+  ::recontaskparameter_pb::Tensor* temp = sinogram_;
+  sinogram_ = nullptr;
+  return temp;
+}
+inline ::recontaskparameter_pb::Tensor* ReconTaskParameterPB::_internal_mutable_sinogram() {
+  _has_bits_[0] |= 0x00000100u;
+  if (sinogram_ == nullptr) {
+    auto* p = CreateMaybeMessage<::recontaskparameter_pb::Tensor>(GetArenaForAllocation());
+    sinogram_ = p;
+  }
+  return sinogram_;
+}
+inline ::recontaskparameter_pb::Tensor* ReconTaskParameterPB::mutable_sinogram() {
+  // @@protoc_insertion_point(field_mutable:recontaskparameter_pb.ReconTaskParameterPB.sinogram)
+  return _internal_mutable_sinogram();
+}
+inline void ReconTaskParameterPB::set_allocated_sinogram(::recontaskparameter_pb::Tensor* sinogram) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
+  if (message_arena == nullptr) {
+    delete sinogram_;
+  }
+  if (sinogram) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+        ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::recontaskparameter_pb::Tensor>::GetOwningArena(sinogram);
+    if (message_arena != submessage_arena) {
+      sinogram = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, sinogram, submessage_arena);
+    }
+    _has_bits_[0] |= 0x00000100u;
+  } else {
+    _has_bits_[0] &= ~0x00000100u;
+  }
+  sinogram_ = sinogram;
+  // @@protoc_insertion_point(field_set_allocated:recontaskparameter_pb.ReconTaskParameterPB.sinogram)
+}
+
+// optional .recontaskparameter_pb.Tensor projection = 20;
+inline bool ReconTaskParameterPB::_internal_has_projection() const {
+  bool value = (_has_bits_[0] & 0x00000200u) != 0;
+  PROTOBUF_ASSUME(!value || projection_ != nullptr);
+  return value;
+}
+inline bool ReconTaskParameterPB::has_projection() const {
+  return _internal_has_projection();
+}
+inline void ReconTaskParameterPB::clear_projection() {
+  if (projection_ != nullptr) projection_->Clear();
+  _has_bits_[0] &= ~0x00000200u;
+}
+inline const ::recontaskparameter_pb::Tensor& ReconTaskParameterPB::_internal_projection() const {
+  const ::recontaskparameter_pb::Tensor* p = projection_;
+  return p != nullptr ? *p : reinterpret_cast<const ::recontaskparameter_pb::Tensor&>(
+      ::recontaskparameter_pb::_Tensor_default_instance_);
+}
+inline const ::recontaskparameter_pb::Tensor& ReconTaskParameterPB::projection() const {
+  // @@protoc_insertion_point(field_get:recontaskparameter_pb.ReconTaskParameterPB.projection)
+  return _internal_projection();
+}
+inline void ReconTaskParameterPB::unsafe_arena_set_allocated_projection(
+    ::recontaskparameter_pb::Tensor* projection) {
+  if (GetArenaForAllocation() == nullptr) {
+    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(projection_);
+  }
+  projection_ = projection;
+  if (projection) {
+    _has_bits_[0] |= 0x00000200u;
+  } else {
+    _has_bits_[0] &= ~0x00000200u;
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:recontaskparameter_pb.ReconTaskParameterPB.projection)
+}
+inline ::recontaskparameter_pb::Tensor* ReconTaskParameterPB::release_projection() {
+  _has_bits_[0] &= ~0x00000200u;
+  ::recontaskparameter_pb::Tensor* temp = projection_;
+  projection_ = nullptr;
+  if (GetArenaForAllocation() != nullptr) {
+    temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  }
+  return temp;
+}
+inline ::recontaskparameter_pb::Tensor* ReconTaskParameterPB::unsafe_arena_release_projection() {
+  // @@protoc_insertion_point(field_release:recontaskparameter_pb.ReconTaskParameterPB.projection)
+  _has_bits_[0] &= ~0x00000200u;
+  ::recontaskparameter_pb::Tensor* temp = projection_;
+  projection_ = nullptr;
+  return temp;
+}
+inline ::recontaskparameter_pb::Tensor* ReconTaskParameterPB::_internal_mutable_projection() {
+  _has_bits_[0] |= 0x00000200u;
+  if (projection_ == nullptr) {
+    auto* p = CreateMaybeMessage<::recontaskparameter_pb::Tensor>(GetArenaForAllocation());
+    projection_ = p;
+  }
+  return projection_;
+}
+inline ::recontaskparameter_pb::Tensor* ReconTaskParameterPB::mutable_projection() {
+  // @@protoc_insertion_point(field_mutable:recontaskparameter_pb.ReconTaskParameterPB.projection)
+  return _internal_mutable_projection();
+}
+inline void ReconTaskParameterPB::set_allocated_projection(::recontaskparameter_pb::Tensor* projection) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
+  if (message_arena == nullptr) {
+    delete projection_;
+  }
+  if (projection) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+        ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::recontaskparameter_pb::Tensor>::GetOwningArena(projection);
+    if (message_arena != submessage_arena) {
+      projection = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, projection, submessage_arena);
+    }
+    _has_bits_[0] |= 0x00000200u;
+  } else {
+    _has_bits_[0] &= ~0x00000200u;
+  }
+  projection_ = projection;
+  // @@protoc_insertion_point(field_set_allocated:recontaskparameter_pb.ReconTaskParameterPB.projection)
+}
+
+// repeated .recontaskparameter_pb.Tensor reconstructed_tomographs = 21;
+inline int ReconTaskParameterPB::_internal_reconstructed_tomographs_size() const {
+  return reconstructed_tomographs_.size();
+}
+inline int ReconTaskParameterPB::reconstructed_tomographs_size() const {
+  return _internal_reconstructed_tomographs_size();
+}
+inline void ReconTaskParameterPB::clear_reconstructed_tomographs() {
+  reconstructed_tomographs_.Clear();
+}
+inline ::recontaskparameter_pb::Tensor* ReconTaskParameterPB::mutable_reconstructed_tomographs(int index) {
+  // @@protoc_insertion_point(field_mutable:recontaskparameter_pb.ReconTaskParameterPB.reconstructed_tomographs)
+  return reconstructed_tomographs_.Mutable(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::recontaskparameter_pb::Tensor >*
+ReconTaskParameterPB::mutable_reconstructed_tomographs() {
+  // @@protoc_insertion_point(field_mutable_list:recontaskparameter_pb.ReconTaskParameterPB.reconstructed_tomographs)
+  return &reconstructed_tomographs_;
+}
+inline const ::recontaskparameter_pb::Tensor& ReconTaskParameterPB::_internal_reconstructed_tomographs(int index) const {
+  return reconstructed_tomographs_.Get(index);
+}
+inline const ::recontaskparameter_pb::Tensor& ReconTaskParameterPB::reconstructed_tomographs(int index) const {
+  // @@protoc_insertion_point(field_get:recontaskparameter_pb.ReconTaskParameterPB.reconstructed_tomographs)
+  return _internal_reconstructed_tomographs(index);
+}
+inline ::recontaskparameter_pb::Tensor* ReconTaskParameterPB::_internal_add_reconstructed_tomographs() {
+  return reconstructed_tomographs_.Add();
+}
+inline ::recontaskparameter_pb::Tensor* ReconTaskParameterPB::add_reconstructed_tomographs() {
+  // @@protoc_insertion_point(field_add:recontaskparameter_pb.ReconTaskParameterPB.reconstructed_tomographs)
+  return _internal_add_reconstructed_tomographs();
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::recontaskparameter_pb::Tensor >&
+ReconTaskParameterPB::reconstructed_tomographs() const {
+  // @@protoc_insertion_point(field_list:recontaskparameter_pb.ReconTaskParameterPB.reconstructed_tomographs)
+  return reconstructed_tomographs_;
+}
+
+// required bool done = 22;
+inline bool ReconTaskParameterPB::_internal_has_done() const {
+  bool value = (_has_bits_[0] & 0x00020000u) != 0;
+  return value;
+}
+inline bool ReconTaskParameterPB::has_done() const {
+  return _internal_has_done();
+}
+inline void ReconTaskParameterPB::clear_done() {
+  done_ = false;
+  _has_bits_[0] &= ~0x00020000u;
+}
+inline bool ReconTaskParameterPB::_internal_done() const {
+  return done_;
+}
+inline bool ReconTaskParameterPB::done() const {
+  // @@protoc_insertion_point(field_get:recontaskparameter_pb.ReconTaskParameterPB.done)
+  return _internal_done();
+}
+inline void ReconTaskParameterPB::_internal_set_done(bool value) {
+  _has_bits_[0] |= 0x00020000u;
+  done_ = value;
+}
+inline void ReconTaskParameterPB::set_done(bool value) {
+  _internal_set_done(value);
+  // @@protoc_insertion_point(field_set:recontaskparameter_pb.ReconTaskParameterPB.done)
+}
+
+// required string path_model = 23;
+inline bool ReconTaskParameterPB::_internal_has_path_model() const {
+  bool value = (_has_bits_[0] & 0x00000040u) != 0;
+  return value;
+}
+inline bool ReconTaskParameterPB::has_path_model() const {
+  return _internal_has_path_model();
+}
+inline void ReconTaskParameterPB::clear_path_model() {
+  path_model_.ClearToEmpty();
+  _has_bits_[0] &= ~0x00000040u;
+}
+inline const std::string& ReconTaskParameterPB::path_model() const {
+  // @@protoc_insertion_point(field_get:recontaskparameter_pb.ReconTaskParameterPB.path_model)
+  return _internal_path_model();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void ReconTaskParameterPB::set_path_model(ArgT0&& arg0, ArgT... args) {
+ _has_bits_[0] |= 0x00000040u;
+ path_model_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:recontaskparameter_pb.ReconTaskParameterPB.path_model)
+}
+inline std::string* ReconTaskParameterPB::mutable_path_model() {
+  // @@protoc_insertion_point(field_mutable:recontaskparameter_pb.ReconTaskParameterPB.path_model)
+  return _internal_mutable_path_model();
+}
+inline const std::string& ReconTaskParameterPB::_internal_path_model() const {
+  return path_model_.Get();
+}
+inline void ReconTaskParameterPB::_internal_set_path_model(const std::string& value) {
+  _has_bits_[0] |= 0x00000040u;
+  path_model_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+}
+inline std::string* ReconTaskParameterPB::_internal_mutable_path_model() {
+  _has_bits_[0] |= 0x00000040u;
+  return path_model_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+}
+inline std::string* ReconTaskParameterPB::release_path_model() {
+  // @@protoc_insertion_point(field_release:recontaskparameter_pb.ReconTaskParameterPB.path_model)
+  if (!_internal_has_path_model()) {
+    return nullptr;
+  }
+  _has_bits_[0] &= ~0x00000040u;
+  return path_model_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
+}
+inline void ReconTaskParameterPB::set_allocated_path_model(std::string* path_model) {
+  if (path_model != nullptr) {
+    _has_bits_[0] |= 0x00000040u;
+  } else {
+    _has_bits_[0] &= ~0x00000040u;
+  }
+  path_model_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), path_model,
+      GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set_allocated:recontaskparameter_pb.ReconTaskParameterPB.path_model)
+}
+
+// required int32 index_sinogram = 24;
+inline bool ReconTaskParameterPB::_internal_has_index_sinogram() const {
+  bool value = (_has_bits_[0] & 0x00400000u) != 0;
+  return value;
+}
+inline bool ReconTaskParameterPB::has_index_sinogram() const {
+  return _internal_has_index_sinogram();
+}
+inline void ReconTaskParameterPB::clear_index_sinogram() {
+  index_sinogram_ = 0;
+  _has_bits_[0] &= ~0x00400000u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 ReconTaskParameterPB::_internal_index_sinogram() const {
+  return index_sinogram_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 ReconTaskParameterPB::index_sinogram() const {
+  // @@protoc_insertion_point(field_get:recontaskparameter_pb.ReconTaskParameterPB.index_sinogram)
+  return _internal_index_sinogram();
+}
+inline void ReconTaskParameterPB::_internal_set_index_sinogram(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _has_bits_[0] |= 0x00400000u;
+  index_sinogram_ = value;
+}
+inline void ReconTaskParameterPB::set_index_sinogram(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_index_sinogram(value);
+  // @@protoc_insertion_point(field_set:recontaskparameter_pb.ReconTaskParameterPB.index_sinogram)
+}
+
+// required int32 index_projection = 25;
+inline bool ReconTaskParameterPB::_internal_has_index_projection() const {
+  bool value = (_has_bits_[0] & 0x00800000u) != 0;
+  return value;
+}
+inline bool ReconTaskParameterPB::has_index_projection() const {
+  return _internal_has_index_projection();
+}
+inline void ReconTaskParameterPB::clear_index_projection() {
+  index_projection_ = 0;
+  _has_bits_[0] &= ~0x00800000u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 ReconTaskParameterPB::_internal_index_projection() const {
+  return index_projection_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 ReconTaskParameterPB::index_projection() const {
+  // @@protoc_insertion_point(field_get:recontaskparameter_pb.ReconTaskParameterPB.index_projection)
+  return _internal_index_projection();
+}
+inline void ReconTaskParameterPB::_internal_set_index_projection(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _has_bits_[0] |= 0x00800000u;
+  index_projection_ = value;
+}
+inline void ReconTaskParameterPB::set_index_projection(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_index_projection(value);
+  // @@protoc_insertion_point(field_set:recontaskparameter_pb.ReconTaskParameterPB.index_projection)
+}
+
+// required string sinogram_info = 26;
+inline bool ReconTaskParameterPB::_internal_has_sinogram_info() const {
+  bool value = (_has_bits_[0] & 0x00000080u) != 0;
+  return value;
+}
+inline bool ReconTaskParameterPB::has_sinogram_info() const {
+  return _internal_has_sinogram_info();
+}
+inline void ReconTaskParameterPB::clear_sinogram_info() {
+  sinogram_info_.ClearToEmpty();
+  _has_bits_[0] &= ~0x00000080u;
+}
+inline const std::string& ReconTaskParameterPB::sinogram_info() const {
+  // @@protoc_insertion_point(field_get:recontaskparameter_pb.ReconTaskParameterPB.sinogram_info)
+  return _internal_sinogram_info();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void ReconTaskParameterPB::set_sinogram_info(ArgT0&& arg0, ArgT... args) {
+ _has_bits_[0] |= 0x00000080u;
+ sinogram_info_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:recontaskparameter_pb.ReconTaskParameterPB.sinogram_info)
+}
+inline std::string* ReconTaskParameterPB::mutable_sinogram_info() {
+  // @@protoc_insertion_point(field_mutable:recontaskparameter_pb.ReconTaskParameterPB.sinogram_info)
+  return _internal_mutable_sinogram_info();
+}
+inline const std::string& ReconTaskParameterPB::_internal_sinogram_info() const {
+  return sinogram_info_.Get();
+}
+inline void ReconTaskParameterPB::_internal_set_sinogram_info(const std::string& value) {
+  _has_bits_[0] |= 0x00000080u;
+  sinogram_info_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+}
+inline std::string* ReconTaskParameterPB::_internal_mutable_sinogram_info() {
+  _has_bits_[0] |= 0x00000080u;
+  return sinogram_info_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+}
+inline std::string* ReconTaskParameterPB::release_sinogram_info() {
+  // @@protoc_insertion_point(field_release:recontaskparameter_pb.ReconTaskParameterPB.sinogram_info)
+  if (!_internal_has_sinogram_info()) {
+    return nullptr;
+  }
+  _has_bits_[0] &= ~0x00000080u;
+  return sinogram_info_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
+}
+inline void ReconTaskParameterPB::set_allocated_sinogram_info(std::string* sinogram_info) {
+  if (sinogram_info != nullptr) {
+    _has_bits_[0] |= 0x00000080u;
+  } else {
+    _has_bits_[0] &= ~0x00000080u;
+  }
+  sinogram_info_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), sinogram_info,
+      GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set_allocated:recontaskparameter_pb.ReconTaskParameterPB.sinogram_info)
+}
+
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
 
 // @@protoc_insertion_point(namespace_scope)
 
@@ -1099,6 +2234,16 @@ template <> struct is_proto_enum< ::recontaskparameter_pb::ReconTaskParameterPB_
 template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::recontaskparameter_pb::ReconTaskParameterPB_IteratorType>() {
   return ::recontaskparameter_pb::ReconTaskParameterPB_IteratorType_descriptor();
+}
+template <> struct is_proto_enum< ::recontaskparameter_pb::ReconTaskParameterPB_FileFormat> : ::std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::recontaskparameter_pb::ReconTaskParameterPB_FileFormat>() {
+  return ::recontaskparameter_pb::ReconTaskParameterPB_FileFormat_descriptor();
+}
+template <> struct is_proto_enum< ::recontaskparameter_pb::ReconTaskParameterPB_FileDataType> : ::std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::recontaskparameter_pb::ReconTaskParameterPB_FileDataType>() {
+  return ::recontaskparameter_pb::ReconTaskParameterPB_FileDataType_descriptor();
 }
 
 PROTOBUF_NAMESPACE_CLOSE

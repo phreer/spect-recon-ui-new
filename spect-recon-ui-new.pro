@@ -17,6 +17,9 @@ SPECT_OMP_LIB_DIR = $$(HOME)/local/lib
 SPECT_NO_OMP_INCLUDE_DIR = ../spect-recon/include
 SPECT_NO_OMP_LIB_DIR = $$(HOME)/local/lib
 
+DCMTK_INCLUDE_DIR = $$(HOME)/local/include
+DCMTK_LIB_DIR = $$(HOME)/local/lib
+
 ONNXRUNTIME_INCLUDE_DIR = $$(HOME)/local/onnxruntime-linux-x64-1.8.0/include
 ONNXRUNTIME_LIB_DIR = $$(HOME)/local/lib
 
@@ -59,31 +62,40 @@ LIBS += \
     -lspect \
     -L$${ONNXRUNTIME_LIB_DIR} \
     -lonnxruntime \
-    -lpthread
-
+    -lpthread \
+    -L$${DCMTK_LIB_DIR} \
+    -ldcmdata -ldcmimgle -ldcmdata -lofstd -loflog -liconv -lz
 message($${LIBS})
 
 INCLUDEPATH += \
     $${PROTOBUF_INCLUDE_DIR} \
     $${SPECT_INCLUDE_DIR} \
     /usr/local/include \
-    $${ONNXRUNTIME_INCLUDE_DIR}
+    $${ONNXRUNTIME_INCLUDE_DIR} \
+    $${DCMTK_INCLUDE_DIR}
 
 SOURCES += \
     main.cpp \
     mainwindow.cpp \
+    recontask.cpp \
     recontaskparameter.cpp \
     recontaskparameter.pb.cc \
-    reconthread.cpp
+    reconthread.cpp \
+    sinogramfilereader.cpp \
+    tensor.cpp
 
 HEADERS += \
     error_code.h \
+    global_defs.h \
     mainwindow.h \
+    recontask.h \
     recontaskparameter.h \
     recontaskparameter.pb.h \
     reconthread.h \
     scascnet.h \
-    sinogram.h
+    sinogram.h \
+    sinogramfilereader.h \
+    tensor.h
 
 FORMS += \
     mainwindow.ui
@@ -112,6 +124,7 @@ model_ckpt.path = $$PREFIX/share/model
 INSTALLS += model_ckpt
 
 DISTFILES += \
+    recontaskparameter.proto \
     spect-recon-ui-new.desktop \
     spect-recon-ui-new.png \
     ckpt_e40_0_p25.2163251814763.pth.onnx

@@ -5,7 +5,10 @@
 #include <QVector>
 #include <QListWidgetItem>
 #include <QDir>
-#include <reconthread.h>
+#include <QProgressBar>
+#include <QTimer>
+
+#include <recontask.h>
 
 #include "recontaskparameter.h"
 
@@ -72,17 +75,50 @@ private slots:
 
     void on_actionRun_All_Tasks_triggered();
 
-    void updateTaskStatus(int taskID, int process);
-private:
-    void ReleaseData();
-    void UpdateParameterDisplay(const ReconTaskParameter &param);
-    void SetEditable(bool editible);
-    void ParamChanged();
-    void CreateNewTask();
+//    void updateTaskStatus(int taskID, int process);
+    void on_horizontalScrollBarSinogram_valueChanged(int value);
 
+    void on_horizontalScrollBarProjection_valueChanged(int value);
+
+    void UpdateStatusBar() {
+        UpdateStatusBar_();
+    }
+private:
+    void ReleaseData_();
+    void UpdateParameterDisplay_(const ReconTaskParameter &param);
+    void SetEditable_(bool editable);
+    void ParamChanged_();
+    void CreateNewTask_();
+    void UpdateProjection_(int index);
+    void UpdateSinogram_(int index);
+    void UpdateStatusBar_();
+    void DrawProjectionLine_();
+    int CurrentTaskIndex_() const;
+    int GetTaskCount_() const {
+        return task_array_.size();
+    }
+    ReconTask& CurrentTask_() {
+        return task_array_[CurrentTaskIndex_()];
+    }
+    const ReconTaskParameter& GetParameter_(int index) const {
+        assert (index < GetTaskCount_() && index >= 0);
+        return task_array_[index].GetParameter();
+    }
+    ReconTaskParameter& GetParameter_(int index) {
+        assert (index < GetTaskCount_() && index >= 0);
+        return task_array_[index].GetParameter();
+    }
+    const ReconTaskParameter& GetCurrentParameter_() const {
+        return task_array_[CurrentTaskIndex_()].GetParameter();
+    }
+    ReconTaskParameter& GetCurrentParameter_() {
+        return task_array_[CurrentTaskIndex_()].GetParameter();
+    }
+    void RunTask_(int task_index);
+    void RunAllTask_();
 
     Ui::MainWindow *ui;
-    QVector<ReconTaskParameter> params_;
+    std::vector<ReconTask> task_array_;
     // 0 for TO_BE_CONDUCTED, 1 for COMPLETED, 2 for RUNNING
     enum class TaskStatus {
         READ_TO_RUN,
@@ -90,13 +126,9 @@ private:
         RUNNING
     };
 
-    QVector<TaskStatus> taskStatus_;
-
-    static QString baseDir_;
-    QString currentDir_;
-    std::shared_ptr<ReconThread> thread_;
-    int CurrentTaskIndex() const;
-    void RunTask(int taskID);
-    void RunAllTask();
+    static QString base_dir_;
+    QString current_dir_;
+    QProgressBar *progress_bar_;
+    QTimer *timer_;
 };
 #endif // MAINWINDOW_H

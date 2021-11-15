@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
+    <width>986</width>
     <height>600</height>
    </rect>
   </property>
@@ -14,9 +14,9 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QHBoxLayout" name="horizontalLayout_5">
+   <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="20,40,30">
     <item>
-     <layout class="QVBoxLayout" name="verticalLayout_2">
+     <layout class="QVBoxLayout" name="verticalLayoutTaskList" stretch="0,20">
       <item>
        <widget class="QLabel" name="labelTask">
         <property name="text">
@@ -30,7 +30,7 @@
      </layout>
     </item>
     <item>
-     <layout class="QVBoxLayout" name="verticalLayout">
+     <layout class="QVBoxLayout" name="verticalLayoutParameter">
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_4">
         <item>
@@ -50,19 +50,129 @@
        </layout>
       </item>
       <item>
-       <layout class="QGridLayout" name="gridLayout_4">
+       <widget class="Line" name="line_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <layout class="QGridLayout" name="gridLayout_2">
+          <item row="0" column="0">
+           <widget class="QLabel" name="labelSinogramFile">
+            <property name="text">
+             <string>Input FIle:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="lineEditSinogram">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QPushButton" name="pushButtonSelectSinogram">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>Select...</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QGridLayout" name="gridLayout_3" columnstretch="25,25,25,25">
+        <item row="0" column="0">
+         <widget class="QLabel" name="labelSinogramFormat">
+          <property name="text">
+           <string>Input Format:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string># Slices:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="3">
+         <widget class="QLineEdit" name="lineEditNumSlices">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QComboBox" name="comboBoxSinogramFormat">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <item>
+           <property name="text">
+            <string>Raw (Projections)</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Raw (Sinograms)</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>DICOM</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>Data Type:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QComboBox" name="comboBoxDataType">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <item>
+           <property name="text">
+            <string>float32</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string extracomment="double">float64</string>
+           </property>
+          </item>
+         </widget>
+        </item>
         <item row="1" column="2">
-         <widget class="QPushButton" name="pushButtonSelectSysMat">
+         <widget class="QCheckBox" name="checkBoxRestore">
           <property name="enabled">
            <bool>false</bool>
           </property>
           <property name="text">
-           <string>Select...</string>
+           <string>Restore</string>
           </property>
          </widget>
         </item>
-        <item row="2" column="2">
-         <widget class="QPushButton" name="pushButtonSelectSinogram">
+       </layout>
+      </item>
+      <item>
+       <layout class="QGridLayout" name="gridLayoutIO">
+        <item row="1" column="2">
+         <widget class="QPushButton" name="pushButtonSelectSysMat">
           <property name="enabled">
            <bool>false</bool>
           </property>
@@ -74,7 +184,7 @@
         <item row="1" column="0">
          <widget class="QLabel" name="labelSysMat">
           <property name="text">
-           <string>System Matrix: </string>
+           <string>System Matrix: File </string>
           </property>
          </widget>
         </item>
@@ -85,24 +195,10 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="1">
-         <widget class="QLineEdit" name="lineEditSinogram">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="labelSinogram">
-          <property name="text">
-           <string>Sinogram:</string>
-          </property>
-         </widget>
-        </item>
         <item row="0" column="0">
-         <widget class="QLabel" name="label_3">
+         <widget class="QLabel" name="labelOutputDir">
           <property name="text">
-           <string>Output Dir: </string>
+           <string>Output Directory: </string>
           </property>
          </widget>
         </item>
@@ -126,7 +222,21 @@
        </layout>
       </item>
       <item>
-       <layout class="QGridLayout" name="gridLayout_6">
+       <widget class="Line" name="line_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QGridLayout" name="gridLayout_6" columnstretch="0,0,0,0">
+        <item row="1" column="0">
+         <widget class="QLabel" name="labelNumIters">
+          <property name="text">
+           <string># Iters:</string>
+          </property>
+         </widget>
+        </item>
         <item row="1" column="1">
          <widget class="QLineEdit" name="lineEditNumIters">
           <property name="enabled">
@@ -137,13 +247,6 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="2">
-         <widget class="QLabel" name="labelNumDualIters">
-          <property name="text">
-           <string>Number of Dual Iterations: </string>
-          </property>
-         </widget>
-        </item>
         <item row="0" column="0">
          <widget class="QLabel" name="labelIteratpr">
           <property name="text">
@@ -151,61 +254,22 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="2">
-         <widget class="QCheckBox" name="checkBoxRestore">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Restore with AI</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="2">
-         <widget class="QLabel" name="labelLambda">
-          <property name="text">
-           <string>Lambda:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="labelGamma">
-          <property name="text">
-           <string>Gamma:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="labelNumIters">
-          <property name="text">
-           <string>Number of Iterations: </string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="3">
-         <widget class="QLineEdit" name="lineEditLambda">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>0.12</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="QLineEdit" name="lineEditGamma">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>0.01</string>
-          </property>
-         </widget>
-        </item>
         <item row="0" column="1">
          <widget class="QComboBox" name="comboBoxIterator">
           <property name="enabled">
            <bool>false</bool>
+          </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>120</width>
+            <height>16777215</height>
+           </size>
           </property>
           <item>
            <property name="text">
@@ -249,7 +313,31 @@
           </item>
          </widget>
         </item>
-        <item row="1" column="3">
+        <item row="0" column="3">
+         <widget class="QLineEdit" name="lineEditLambda">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>0.12</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QLabel" name="labelLambda">
+          <property name="text">
+           <string>Lambda:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="labelNumDualIters">
+          <property name="text">
+           <string># Dual Iters:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
          <widget class="QLineEdit" name="lineEditNumDualIters">
           <property name="enabled">
            <bool>false</bool>
@@ -259,42 +347,49 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="3">
-         <widget class="QCheckBox" name="checkBoxScatterMap">
+        <item row="1" column="2">
+         <widget class="QLabel" name="labelGamma">
+          <property name="text">
+           <string>Gamma:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="3">
+         <widget class="QLineEdit" name="lineEditGamma">
           <property name="enabled">
            <bool>false</bool>
           </property>
           <property name="text">
-           <string>Use Scatter Map</string>
+           <string>0.01</string>
           </property>
          </widget>
         </item>
        </layout>
       </item>
       <item>
+       <widget class="Line" name="line">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
        <layout class="QGridLayout" name="gridLayout_5">
-        <item row="0" column="0">
+        <item row="1" column="2">
+         <widget class="QLineEdit" name="lineEditScatterMap">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
          <widget class="QLabel" name="labelScatterMap">
           <property name="text">
            <string>Scatter Map: </string>
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="labelScatterCoeff">
-          <property name="text">
-           <string>Scatter Coeff: </string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="2">
-         <widget class="QLineEdit" name="lineEditScatterCoeff">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="3">
+        <item row="1" column="3">
          <widget class="QPushButton" name="pushButtonSelectScatterMap">
           <property name="enabled">
            <bool>false</bool>
@@ -304,8 +399,25 @@
           </property>
          </widget>
         </item>
+        <item row="0" column="0">
+         <widget class="QCheckBox" name="checkBoxScatterMap">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Use Scatter Map</string>
+          </property>
+         </widget>
+        </item>
         <item row="0" column="2">
-         <widget class="QLineEdit" name="lineEditScatterMap">
+         <widget class="QLabel" name="labelScatterCoeff">
+          <property name="text">
+           <string>Scatter Coeff: </string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="3">
+         <widget class="QLineEdit" name="lineEditScatterCoeff">
           <property name="enabled">
            <bool>false</bool>
           </property>
@@ -321,7 +433,7 @@
            <bool>false</bool>
           </property>
           <property name="text">
-           <string>Save</string>
+           <string>Save Task</string>
           </property>
          </widget>
         </item>
@@ -331,11 +443,129 @@
            <bool>false</bool>
           </property>
           <property name="text">
-           <string>Run</string>
+           <string>Run Task</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButtonShowResults">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Show Results...</string>
           </property>
          </widget>
         </item>
        </layout>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QVBoxLayout" name="verticalLayoutImages">
+      <item>
+       <widget class="QLabel" name="labelReconstructed">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Info:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPlainTextEdit" name="plainTextEditSinogramInfo">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="labelProjection">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Projaction:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="labelProjectionImage">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Empty</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QScrollBar" name="horizontalScrollBarProjection">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="labelSinogram">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Sinogram:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="labelSinogramImage">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Empty</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QScrollBar" name="horizontalScrollBarSinogram">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>
@@ -346,8 +576,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
-     <height>20</height>
+     <width>986</width>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -356,6 +586,9 @@
     </property>
     <addaction name="actionNew_Task"/>
     <addaction name="actionImport_Tasks"/>
+    <addaction name="separator"/>
+    <addaction name="actionSave_Task"/>
+    <addaction name="actionSave_Task_As"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
@@ -402,6 +635,16 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+R</string>
+   </property>
+  </action>
+  <action name="actionSave_Task">
+   <property name="text">
+    <string>Save Task</string>
+   </property>
+  </action>
+  <action name="actionSave_Task_As">
+   <property name="text">
+    <string>Save Task As...</string>
    </property>
   </action>
  </widget>

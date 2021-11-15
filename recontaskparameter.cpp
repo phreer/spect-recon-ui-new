@@ -81,20 +81,58 @@ ReconTaskParameter::ToProtobuf() const
 {
     using namespace recontaskparameter_pb;
     auto param_ptr = std::make_shared<ReconTaskParameterPB>();
-    param_ptr->set_path_sysmat(pathSysMat.toStdString());
-    param_ptr->set_path_sinogdram(pathSinogram.toStdString());
-    param_ptr->set_path_scatter_map(pathScatterMap.toStdString());
-    param_ptr->set_output_dir(outputDir.toStdString());
-    param_ptr->set_task_name(taskName.toStdString());
-    param_ptr->set_num_iters(numIters);
-    param_ptr->set_num_dual_iters(numDualIters);
+    param_ptr->set_path_sysmat(path_sysmat.toStdString());
+    param_ptr->set_path_sinogdram(path_sinogram.toStdString());
+    param_ptr->set_path_scatter_map(path_scatter_map.toStdString());
+    param_ptr->set_path_model(path_model.toStdString());
+    param_ptr->set_output_dir(output_dir.toStdString());
+    param_ptr->set_task_name(task_name.toStdString());
+    param_ptr->set_sinogram_info(sinogram_info.toStdString());
+
+    param_ptr->set_num_iters(num_iters);
+    param_ptr->set_num_dual_iters(num_dual_iters);
     param_ptr->set_gamma(gamma);
     param_ptr->set_lambda(lambda);
-    param_ptr->set_scatter_coeff(paramScatter);
-    param_ptr->set_use_nn(useNN);
-    param_ptr->set_use_scatter_map(useScatterMap);
-    param_ptr->set_path_mu_map(pathMuMap.toStdString());
-    param_ptr->set_iterator(IteratorTypeStrToPB(iteratorType));
+    param_ptr->set_coeff_scatter(coeff_scatter);
+
+    param_ptr->set_use_nn(use_nn);
+    param_ptr->set_use_scatter_map(use_scatter_map);
+
+    param_ptr->set_path_mu_map(path_mumap.toStdString());
+    param_ptr->set_iterator(IteratorTypeStrToPB(iterator_type));
+
+    if (sinogram.shape().size() > 0) {
+        for (size_t i = 0; i < sinogram.data().size(); ++i) {
+            param_ptr->mutable_sinogram()->set_data(i, sinogram.data()[i]);
+        }
+        for (size_t i = 0; i < sinogram.shape().size(); ++i) {
+            param_ptr->mutable_sinogram()->set_shape(i, sinogram.shape()[i]);
+        }
+    }
+    if (projection.shape().size() > 0) {
+        for (size_t i = 0; i < projection.data().size(); ++i) {
+            param_ptr->mutable_projection()->set_data(i, projection.data()[i]);
+        }
+        for (size_t i = 0; i < projection.shape().size(); ++i) {
+            param_ptr->mutable_projection()->set_shape(i, projection.shape()[i]);
+        }
+    }
+    for (size_t i = 0; reconstructed_tomographs.size(); ++i) {
+        auto result_pb = param_ptr->add_reconstructed_tomographs();
+        for (size_t j = 0; j < reconstructed_tomographs[i].data().size(); ++i) {
+            result_pb->set_data(j, reconstructed_tomographs[i].data()[j]);
+        }
+        for (size_t j = 0; j < reconstructed_tomographs[i].shape().size(); ++i) {
+            result_pb->set_shape(i, reconstructed_tomographs[i].shape()[i]);
+        }
+    }
+
+    param_ptr->set_file_data_type(file_data_type);
+    param_ptr->set_file_format(file_format);
+    param_ptr->set_num_input_images(num_input_images);
+    param_ptr->set_sinogram_slice_index(sinogram_slice_index);
+    param_ptr->set_index_sinogram(index_sinogram);
+    param_ptr->set_index_projection(index_projection);
     return param_ptr;
 }
 
@@ -102,26 +140,69 @@ ReconTaskParameter::ToProtobuf() const
 int ReconTaskParameter::FromProtobuf(
         const recontaskparameter_pb::ReconTaskParameterPB &param_pb)
 {
-    pathSysMat = QString::fromStdString(param_pb.path_sysmat());
-    pathSinogram = QString::fromStdString(param_pb.path_sinogdram());
-    taskName = QString::fromStdString(param_pb.task_name());
+    path_sysmat = QString::fromStdString(param_pb.path_sysmat());
+    path_sinogram = QString::fromStdString(param_pb.path_sinogdram());
+    task_name = QString::fromStdString(param_pb.task_name());
+    sinogram_info = QString::fromStdString(param_pb.sinogram_info());
+
     lambda = param_pb.lambda();
     gamma = param_pb.lambda();
-    useNN = param_pb.use_nn();
-    useScatterMap = param_pb.use_scatter_map();
-    numIters = param_pb.num_iters();
-    numDualIters = param_pb.has_num_dual_iters();
-    iteratorType = IteratorTypePBToStr(param_pb.iterator());
+    use_nn = param_pb.use_nn();
+    use_scatter_map = param_pb.use_scatter_map();
+    num_iters = param_pb.num_iters();
+    num_dual_iters = param_pb.has_num_dual_iters();
+    iterator_type = IteratorTypePBToStr(param_pb.iterator());
     if (param_pb.has_path_scatter_map()) {
-        pathScatterMap = QString::fromStdString(param_pb.path_scatter_map());
+        path_scatter_map = QString::fromStdString(param_pb.path_scatter_map());
     } else {
-        pathScatterMap = QString();
+        path_scatter_map = QString();
     }
-    if (param_pb.has_scatter_coeff()) {
-        paramScatter = param_pb.scatter_coeff();
+    if (param_pb.has_coeff_scatter()) {
+        coeff_scatter = param_pb.coeff_scatter();
     } else {
-        paramScatter = 0.;
+        coeff_scatter = 0.;
     }
+
+    if (param_pb.has_sinogram()) {
+        std::vector<double> sino;
+        for (int i = 0; i < param_pb.sinogram().data_size(); ++i) {
+            sino.push_back(param_pb.sinogram().data(i));
+        }
+        std::vector<int> shape;
+        for (int i = 0; i < param_pb.sinogram().shape_size(); ++i) {
+            shape.push_back(param_pb.sinogram().shape(i));
+        }
+        sinogram.Set(shape, std::move(sino));
+    }
+    if (param_pb.has_projection()) {
+        std::vector<double> proj;
+        for (int i = 0; i < param_pb.projection().shape_size(); ++i) {
+            proj.push_back(param_pb.projection().data(i));
+        }
+        std::vector<int> shape;
+        for (int i = 0; i < param_pb.projection().shape_size(); ++i) {
+            shape.push_back(param_pb.projection().shape(i));
+        }
+        projection.Set(shape, std::move(proj));
+    }
+    for (int i = 0; i < param_pb.reconstructed_tomographs_size(); ++i) {
+        std::vector<double> temp;
+        for (int j = 0; j < param_pb.reconstructed_tomographs(i).data_size(); ++j) {
+            temp.push_back(param_pb.reconstructed_tomographs(i).data(j));
+        }
+        std::vector<int> shape;
+        for (int j = 0; j < param_pb.reconstructed_tomographs(i).shape_size(); ++j) {
+            shape.push_back(param_pb.reconstructed_tomographs(i).shape(i));
+        }
+        reconstructed_tomographs.push_back(Tensor(shape, std::move(temp)));
+    }
+    sinogram_slice_index = param_pb.sinogram_slice_index();
+    num_input_images = param_pb.num_input_images();
+    file_data_type = param_pb.file_data_type();
+    file_format = param_pb.file_format();
+    path_model = QString::fromStdString(param_pb.path_model());
+    index_sinogram = param_pb.index_sinogram();
+    index_projection = param_pb.index_projection();
     return 0;
 }
 
@@ -134,7 +215,7 @@ int ReconTaskParameter::ToProtobufFilePath(const QString &path) const
         return EINVALID_PATH;
     }
     auto paramPb = ToProtobuf();
-    qDebug() << "Number of dual iterations: " << numDualIters;
+    qDebug() << "Number of dual iterations: " << num_dual_iters;
     qDebug() << "Number of dual iterations (PB): " << paramPb->num_dual_iters();
 
     if (!paramPb->SerializeToOstream(&outstream)) {

@@ -2,6 +2,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <algorithm>
 
 #include <QDir>
 #include <QDebug>
@@ -13,133 +14,118 @@
 
 #define OS_LINUX
 
-ReconThread::ReconThread(QObject *parent, const QVector<ReconTaskParameter> &reconTaskParamList, int startTaskIndex)
-    : QThread(parent), _reconTaskParamList(reconTaskParamList), _startTaskIndex(startTaskIndex)
+ReconThread::ReconThread(QObject *parent)
+    : QThread(parent)
 {
-    SPECTSetLogLevel(LOG_INFO, true);
-#if defined (OS_LINUX) && defined (USE_APPIMAGE)
-    const char *appdir = getenv("APPDIR");
-    _modelPath = QString::fromStdString(appdir) + "/usr/share/model/ckpt_e40_0_p25.2163251814763.pth.onnx";
-#else
-    const char *envModelPath = getenv("MODEL_PATH");
-    if (strlen(envModelPath)) {
-        _modelPath = QString::fromStdString(envModelPath);
-    } else {
-        _modelPath = "ckpt_e40_0_p25.2163251814763.pth.onnx";
-    }
-#endif
-    qDebug() << "Model path: " << _modelPath << endl;
-
     // 初始化内存全局变量
-    int rv;
-    rv = SPECTInitialize();
-    if (0 != rv)
-    {
+    SPECTSetLogLevel(LOG_INFO, true);
+    int rv = SPECTInitialize();
+    if (0 != rv) {
         qDebug() << __FUNCTION__ << ": ";
         qDebug() << "fail to init planning..., error:%s\n";
         qDebug() << SPECTGetErrString((ERR_CODE)rv) << endl;
     }
 }
 
-void ReconThread::run()
-{
-    SPECTProject spectProject;
-    for (auto i = 0; i < _reconTaskParamList.size(); ++i)
-    {
-        _taskIndexOffset = i;
-        _process = 0;
-        reconstruct(spectProject, _reconTaskParamList[i]);
-        emit(milestone(getTaskID(), 100));
-    }
-}
+void ReconThread::SetParameter(const ReconTaskParameter &param) {
+    QString base_dir = QDir::home().filePath("spect-recon");
 
-void ReconThread::reconstruct(SPECTProject &spectProject, const ReconTaskParameter &param)
-{
-    qDebug() << "Start task " << getTaskID() << "..." << endl;
-    QString baseDir = QDir::home().filePath("spect-recon");
+    spect_param_.io_param.sino_path = param.path_sinogram.toStdString();
+    spect_param_.io_param.sysmat_path = param.path_sysmat.toStdString();
+    spect_param_.io_param.sca_path = param.path_scatter_map.toStdString();
 
-    SPECTParam spectParam;
-    spectParam.io_param.sino_path = param.pathSinogram.toStdString();
-    spectParam.io_param.sysmat_path = param.pathSysMat.toStdString();
-    spectParam.io_param.sca_path = param.pathScatterMap.toStdString();
+    spect_param_.io_param.mumap_path = "./attenuation.mmap";
 
-    spectParam.io_param.mumap_path = "./attenuation.mmap";
+    spect_param_.num_iters = param.num_iters;
+    spect_param_.num_dual_iters = param.num_dual_iters;
+    spect_param_.sca_param = param.coeff_scatter;
 
-    spectParam.num_iters = param.numIters;
-    spectParam.num_dual_iters = param.numDualIters;
-    spectParam.sca_param = param.paramScatter;
-
-    QString basename = param.taskName;
-    spectParam.io_param.recon_filename = basename.toStdString();
-    spectParam.io_param.recon_hr_filename = basename.toStdString();
+    QString basename = param.task_name;
+    spect_param_.io_param.recon_filename = basename.toStdString();
+    spect_param_.io_param.recon_hr_filename = basename.toStdString();
 
     // Setup output directory.
-    QString outputDir = param.outputDir.trimmed();
+    QString outputDir = param.output_dir.trimmed();
     if (QDir(outputDir).isRelative()) {
-        QDir d = QDir(baseDir);
+        QDir d = QDir(base_dir);
         outputDir = d.filePath(outputDir);
         d = QDir(outputDir);
         d.mkpath(basename);
         outputDir = d.filePath(basename);
     }
-    spectParam.io_param.outputdir = outputDir.toStdString();
+    spect_param_.io_param.outputdir = outputDir.toStdString();
 
-    Sinogram<float> inputSinogram(param.pathSinogram.toStdString(), kNumSlices, kNumAngles, kNumDetectors);
-    if (param.useNN) {
-        Scascnet net(_modelPath.toStdString().c_str());
-        qDebug() << "Running neural networks..." << endl;
 
+    const int sinogram_start_index = std::max<int>(param.index_sinogram - kNumSlices / 2 + 1, 0);
+    const int sinogram_inner_index = param.index_sinogram - sinogram_start_index;
+    const int sinogram_end_index = std::min<int>(sinogram_start_index + kNumSlices, param.sinogram.shape()[0]);
+    std::vector<double> buff(kNumSlices * kNumAngles * kNumDetectors);
+    const int element_start_index = sinogram_start_index * kNumDetectors * kNumAngles;
+    for (int i = 0; i < (sinogram_end_index - sinogram_start_index) * kNumAngles * kNumDetectors; ++i) {
+        buff[i] = param.sinogram.data()[element_start_index + i];
+    }
+    Sinogram<double> input_sinogram(buff, kNumSlices, kNumAngles, kNumDetectors);
+    Sinogram<double> restored_sinogram;
+    if (param.use_nn) {
+        Scascnet net(param.path_model.toStdString().c_str());
+
+        qDebug() << "Performing restoration..." << endl;
         QElapsedTimer timer;
         timer.start();
-        Sinogram<float> restoredSinogram = net.Run(inputSinogram);
+        restored_sinogram = net.Run(input_sinogram.TransformType<float>()).TransformType<double>();
         qDebug() << "Time consumed for restoration: " << timer.elapsed() << " (ms)." << endl;
-
-        Sinogram<double> restoredSinogramDouble = restoredSinogram.TransformType<double>();
-
         qDebug() << "Restoration completed." << endl;
-        QFileInfo infoInputSinogram(param.pathSinogram);
+
+        QFileInfo info_input_sinogram(param.path_sinogram);
         std::string restoredSinogramOutputPath = QDir(outputDir).filePath(
-                    infoInputSinogram.fileName() + ".resf").toStdString();
-        restoredSinogram.WriteToFilePath(restoredSinogramOutputPath);
+                    info_input_sinogram.fileName() + ".resf").toStdString();
 
         restoredSinogramOutputPath = QDir(outputDir).filePath(
-                    infoInputSinogram.fileName() + ".resd").toStdString();
-        restoredSinogramDouble.WriteToFilePath(restoredSinogramOutputPath);
+                    info_input_sinogram.fileName() + ".resd").toStdString();
+        restored_sinogram.WriteToFilePath(restoredSinogramOutputPath);
 
-        spectParam.io_param.sino_path = restoredSinogramOutputPath;
+        spect_param_.io_param.sino_path = restoredSinogramOutputPath;
         qDebug() << "Restored sinogram saved to "
             << QString::fromStdString(restoredSinogramOutputPath) << endl;
     } else {
-        Sinogram<double> sinogramDouble = inputSinogram.TransformType<double>();
-        QFileInfo infoInputSinogram(param.pathSinogram);
-        std::string sinogramDoubleOutputPath = QDir(outputDir).filePath(
-                    infoInputSinogram.fileName() + ".sino").toStdString();
-        sinogramDouble.WriteToFilePath(sinogramDoubleOutputPath);
-        qDebug() << "Sinogram (double) saved to "
-            << QString::fromStdString(sinogramDoubleOutputPath) << endl;
-        spectParam.io_param.sino_path = sinogramDoubleOutputPath;
+        restored_sinogram = input_sinogram;
     }
+    spect_param_.io_param.sinogram_data.resize(kNumAngles * kNumDetectors);
+    for (int i = 0, j = sinogram_inner_index * kNumAngles * kNumDetectors; i < kNumAngles * kNumDetectors; ++i, ++j) {
+        spect_param_.io_param.sinogram_data[i] = restored_sinogram.GetData()[j];
+    }
+    spect_param_.io_param.asum_filename = (basename + ".asum").toStdString();
+    spect_param_.Print();
 
-    spectParam.io_param.asum_filename = (basename + ".asum").toStdString();
-    spectParam.Print();
-
-    if (param.iteratorType == "EM-Tikhonov") spectParam.iterator_type = EM_TIKHONOV;
-    else if (param.iteratorType == "PAPA-2DWavelet") spectParam.iterator_type = PAPA_2D_WAVELET;
-    else if (param.iteratorType == "PAPA-Cont") spectParam.iterator_type = PAPA_CONT;
-    else if (param.iteratorType == "PAPA-Cont-TV") spectParam.iterator_type = PAPA_CONT_TV;
-    else if (param.iteratorType == "PAPA-Cont-Wavelet") spectParam.iterator_type = PAPA_CONT_WAVELET;
-    else if (param.iteratorType == "PAPA-Dynamic") spectParam.iterator_type = PAPA_DYNAMIC;
-    else if (param.iteratorType == "PAPA-TV") spectParam.iterator_type = PAPA_TV;
-    else if (param.iteratorType == "MLEM") spectParam.iterator_type = MLEM;
+    if (param.iterator_type == "EM-Tikhonov") spect_param_.iterator_type = EM_TIKHONOV;
+    else if (param.iterator_type == "PAPA-2DWavelet") spect_param_.iterator_type = PAPA_2D_WAVELET;
+    else if (param.iterator_type == "PAPA-Cont") spect_param_.iterator_type = PAPA_CONT;
+    else if (param.iterator_type == "PAPA-Cont-TV") spect_param_.iterator_type = PAPA_CONT_TV;
+    else if (param.iterator_type == "PAPA-Cont-Wavelet") spect_param_.iterator_type = PAPA_CONT_WAVELET;
+    else if (param.iterator_type == "PAPA-Dynamic") spect_param_.iterator_type = PAPA_DYNAMIC;
+    else if (param.iterator_type == "PAPA-TV") spect_param_.iterator_type = PAPA_TV;
+    else if (param.iterator_type == "MLEM") spect_param_.iterator_type = MLEM;
     else {
-        qDebug() << "Invalid iteratorType: " << param.iteratorType << endl;
+        qDebug() << "Invalid iterator_type: " << param.iterator_type << endl;
         exit(-1);
     }
-    spectProject.SetSpectParams(spectParam);
+}
 
+void ReconThread::run()
+{
+    SPECTProject spect_project;
+    progress_ = 0;
+    Reconstruct();
+}
+
+void ReconThread::Reconstruct()
+{
     QElapsedTimer timer;
     timer.start();
-    spectProject.GenerateBackProject(&_process);
+    SPECTProject spect_project;
+    spect_project.SetSpectParams(spect_param_);
+    std::vector<std::vector<double> > recon_result_array;
+    spect_project.GenerateBackProject(&progress_, &recon_result_array);
     qDebug() << "Time consumed for reconstruction: " << timer.elapsed() << " (ms)." << endl;
-    qDebug() << "Task " << getTaskID() << " completed." << endl;
+    qDebug() << "Task " << " completed." << endl;
 }
