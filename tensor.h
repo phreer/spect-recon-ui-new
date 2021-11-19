@@ -30,7 +30,8 @@ public:
 
     Tensor() {}
 
-    static void CheckConsistency(const std::vector<int>& shape, int size) {
+    static void CheckConsistency(const std::vector<int>& shape, int size)
+    {
         int num_elements = 1;
         for (auto s: shape) num_elements *= s;
         if (num_elements < 0) {
@@ -44,21 +45,29 @@ public:
             throw InconsistentShapeError();
         }
     }
-    Tensor(const std::vector<int> &shape) : shape_(shape) {
+    Tensor(const std::vector<int> &shape) : shape_(shape)
+    {
         int num_elements = 1;
         for (auto s: shape) num_elements *= s;
         data_.resize(num_elements);
     }
 
-    Tensor(const std::vector<int> &shape, const std::vector<DataType> &data) : shape_(shape){
+    Tensor(const std::vector<int> &shape, const std::vector<DataType> &data) : shape_(shape)
+    {
         CheckConsistency(shape, data.size());
         data_ = data;
     }
 
-    Tensor(const std::vector<int> &shape, std::vector<DataType> &&data): shape_(shape) {
+    Tensor(const std::vector<int> &shape, std::vector<DataType> &&data): shape_(shape)
+    {
         CheckConsistency(shape, data.size());
         data_ = move(data);
     }
+
+    Tensor(Tensor&& tensor): shape_(std::move(tensor.shape_)), data_(std::move(tensor.data_)) {}
+    Tensor(const Tensor& tensor): shape_(tensor.shape_), data_(tensor.data_) {}
+    Tensor& operator=(const Tensor& tensor) = default;
+    Tensor& operator=(Tensor&& tensor) = default;
 
     const std::vector<int> &shape() const { return shape_; }
 

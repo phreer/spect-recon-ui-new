@@ -81,8 +81,11 @@ SOURCES += \
     recontaskparameter.cpp \
     recontaskparameter.pb.cc \
     reconthread.cpp \
+    resultdialog.cpp \
+    resultwindow.cpp \
     sinogramfilereader.cpp \
-    tensor.cpp
+    tensor.cpp \
+    utils.cpp
 
 HEADERS += \
     error_code.h \
@@ -92,13 +95,17 @@ HEADERS += \
     recontaskparameter.h \
     recontaskparameter.pb.h \
     reconthread.h \
+    resultdialog.h \
+    resultwindow.h \
     scascnet.h \
     sinogram.h \
     sinogramfilereader.h \
-    tensor.h
+    tensor.h \
+    utils.h
 
 FORMS += \
-    mainwindow.ui
+    mainwindow.ui \
+    resultdialog.ui
 
 TRANSLATIONS += \
     spect-recon-ui-new_zh_CN.ts

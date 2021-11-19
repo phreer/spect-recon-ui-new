@@ -2,11 +2,6 @@ syntax = "proto2";
 
 package recontaskparameter_pb;
 
-message Tensor {
-    repeated double data = 1;
-    repeated int32 shape = 2;
-}
-
 message ReconTaskParameterPB {
     required string task_name = 1;
     required string path_sysmat = 2;
@@ -52,14 +47,22 @@ message ReconTaskParameterPB {
         UINT64 = 10;
     }
     required FileDataType file_data_type = 17;
-    required int32 sinogram_slice_index = 18;
-    optional Tensor sinogram = 19;
-    optional Tensor projection = 20;
-    repeated Tensor reconstructed_tomographs = 21;
 
-    required bool done = 22; // Whether the task is completed.
-    required string path_model = 23; // THe path to the neural network model for scattering correction.
-    required int32 index_sinogram = 24;
-    required int32 index_projection = 25;
-    required string sinogram_info = 26;
+    required int32 index_sinogram = 18;
+    required int32 index_projection = 19;
+    required int32 num_detectors = 20;
+    required int32 num_angles = 21;
+    required int32 num_slices = 22;
+    required int32 num_results = 23;
+
+    repeated double sinogram_data = 24; // (num_slices, num_angles, num_detectors)
+    repeated double restored_sinogram_data = 25;
+    repeated double reconstructed_tomographs_data = 26;
+
+    required bool done = 27; // Whether the task is completed.
+    required bool loaded = 28;
+    required string path_model = 29; // THe path to the neural network model for scattering correction.
+
+    required string sinogram_info = 30;
+    required int32 resolution = 31;
 }

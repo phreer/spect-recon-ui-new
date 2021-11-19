@@ -109,10 +109,10 @@ public:
         return Sinogram<OtherType>(std::move(data), num_slices_, num_angles_, num_detectors_);
     }
 private:
-    std::vector<T> vec_;
     size_t num_slices_;
     size_t num_angles_;
     size_t num_detectors_;
+    std::vector<T> vec_;
 };
 
 

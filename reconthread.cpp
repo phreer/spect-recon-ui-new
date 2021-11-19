@@ -14,8 +14,8 @@
 
 #define OS_LINUX
 
-ReconThread::ReconThread(QObject *parent)
-    : QThread(parent)
+ReconThread::ReconThread(QObject *parent):
+    QThread(parent)
 {
     // 初始化内存全局变量
     SPECTSetLogLevel(LOG_INFO, true);
@@ -113,19 +113,31 @@ void ReconThread::SetParameter(const ReconTaskParameter &param) {
 
 void ReconThread::run()
 {
-    SPECTProject spect_project;
-    progress_ = 0;
     Reconstruct();
 }
 
 void ReconThread::Reconstruct()
 {
+    progress_ = 0;
+    std::cout << "recon_result_array.size(): " << result_array_.size() << std::endl;
+    std::cout << "recon_result_array.size(): " << result_array_.size() << std::endl;
     QElapsedTimer timer;
     timer.start();
     SPECTProject spect_project;
     spect_project.SetSpectParams(spect_param_);
     std::vector<std::vector<double> > recon_result_array;
     spect_project.GenerateBackProject(&progress_, &recon_result_array);
-    qDebug() << "Time consumed for reconstruction: " << timer.elapsed() << " (ms)." << endl;
-    qDebug() << "Task " << " completed." << endl;
+    std::cout << "Time consumed for reconstruction: " << timer.elapsed() << " (ms)." << endl;
+//    qDebug() << "Task completed." << endl;
+
+    std::vector<int> shape(2);
+    shape[0] = spect_param_.rec_ysize;
+    shape[1] = spect_param_.rec_xsize;
+    std::cout << "recon_result_array.size(): " << result_array_.size() << std::endl;
+    for (size_t i = 0; i < recon_result_array.size(); ++i) {
+        Tensor tensor(shape, std::move(recon_result_array[i]));
+        tensor.NormalizeInPlace();
+        std::cout << "tensor.GetSum(): " << tensor.GetSum() << std::endl;
+        result_array_.push_back(std::move(tensor));
+    }
 }

@@ -14,7 +14,7 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="20,40,30">
+   <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="0,0,30">
     <item>
      <layout class="QVBoxLayout" name="verticalLayoutTaskList" stretch="0,20">
       <item>
@@ -109,6 +109,9 @@
           <property name="enabled">
            <bool>false</bool>
           </property>
+          <property name="text">
+           <string>64</string>
+          </property>
          </widget>
         </item>
         <item row="0" column="1">
@@ -158,12 +161,19 @@
          </widget>
         </item>
         <item row="1" column="2">
-         <widget class="QCheckBox" name="checkBoxRestore">
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string># Angles:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="3">
+         <widget class="QLineEdit" name="lineEditNumAngles">
           <property name="enabled">
            <bool>false</bool>
           </property>
           <property name="text">
-           <string>Restore</string>
+           <string>120</string>
           </property>
          </widget>
         </item>
@@ -245,6 +255,9 @@
           <property name="text">
            <string>500</string>
           </property>
+          <property name="maxLength">
+           <number>10</number>
+          </property>
          </widget>
         </item>
         <item row="0" column="0">
@@ -321,6 +334,12 @@
           <property name="text">
            <string>0.12</string>
           </property>
+          <property name="maxLength">
+           <number>10</number>
+          </property>
+          <property name="placeholderText">
+           <string notr="true"/>
+          </property>
          </widget>
         </item>
         <item row="0" column="2">
@@ -361,6 +380,22 @@
           </property>
           <property name="text">
            <string>0.01</string>
+          </property>
+          <property name="maxLength">
+           <number>10</number>
+          </property>
+          <property name="placeholderText">
+           <string notr="true"/>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="3">
+         <widget class="QCheckBox" name="checkBoxRestore">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Restore</string>
           </property>
          </widget>
         </item>
@@ -421,6 +456,9 @@
           <property name="enabled">
            <bool>false</bool>
           </property>
+          <property name="maxLength">
+           <number>10</number>
+          </property>
          </widget>
         </item>
        </layout>
@@ -448,12 +486,12 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButtonShowResults">
+         <widget class="QPushButton" name="pushButtonShowResult">
           <property name="enabled">
            <bool>false</bool>
           </property>
           <property name="text">
-           <string>Show Results...</string>
+           <string>Show Result...</string>
           </property>
          </widget>
         </item>
@@ -490,17 +528,28 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="labelProjection">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text">
-         <string>Projaction:</string>
-        </property>
-       </widget>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QLabel" name="labelProjection">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Projaction:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="comboBoxProjectionIndex">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
       <item>
        <widget class="QLabel" name="labelProjectionImage">
@@ -529,17 +578,28 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="labelSinogram">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text">
-         <string>Sinogram:</string>
-        </property>
-       </widget>
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QLabel" name="labelSinogram">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Sinogram:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="comboBoxSinogramIndex">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
       <item>
        <widget class="QLabel" name="labelSinogramImage">

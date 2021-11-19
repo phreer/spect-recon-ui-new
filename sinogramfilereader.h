@@ -105,7 +105,9 @@ public:
     std::string GetSinogramInfoString() const {
         return sinogram_info_.GetInfoString();
     }
-
+    Status GetStatus() const {
+        return status_;
+    }
 private:
     void ReadDicom_(const std::string& file_name);
     SinogramInfo sinogram_info_;

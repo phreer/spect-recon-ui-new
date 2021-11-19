@@ -2,8 +2,10 @@
 #define RECONTASKPARAMETER_H
 
 #include <QString>
+#include <QVector>
 #include <fstream>
 #include <memory>
+
 #include "recontaskparameter.pb.h"
 #include "tensor.h"
 
@@ -47,28 +49,29 @@ struct ReconTaskParameter
 
     // The parameters below is unused for now
     // Numerical parameters
-    uint num_bases;
+    int num_bases = 4;
 
     // Device parameters
-    uint num_cols = 128; // The number of cameras
+    int num_detectors = 128; // The number of cameras
+    int num_angles = 120;
+    int num_slices = 64;
 
     // Use neural networks to perform restoration and scatter correction?
     bool use_nn = false;;
 
     bool use_scatter_map = false;
 
-    FileDataType file_data_type;
-    FileFormat file_format;
+    FileDataType file_data_type = FileDataType::ReconTaskParameterPB_FileDataType_FLOAT32;
+    FileFormat file_format = FileFormat::ReconTaskParameterPB_FileFormat_RAW_PROJECTION;
 
     std::vector<Tensor> reconstructed_tomographs;
     Tensor projection;
     Tensor sinogram;
-    uint sinogram_slice_index;
     int num_input_images;
 
-    int index_sinogram;
-    int index_projection;
-
+    int index_sinogram = 0;
+    int index_projection = 0;
+    int resolution = 128;
     // Load task parameter from given protobuf object `param_pb`.
     int FromProtobuf(const recontaskparameter_pb::ReconTaskParameterPB &param_pb);
     // Load task parameter from protobuf object that will be constructed from file

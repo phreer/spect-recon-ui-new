@@ -10,6 +10,7 @@
 #include "error_code.h"
 #include "reconthread.h"
 #include "sinogramfilereader.h"
+#include "utils.h"
 
 QString MainWindow::base_dir_ = QDir::home().filePath("spect-recon-data");
 
@@ -27,7 +28,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     timer_ = new QTimer(this);
     timer_->setInterval(1000);
-    connect(timer_, SIGNAL(timeout()), this, SLOT(UpdateStatusBar()));
+    connect(timer_, SIGNAL(timeout()), this, SLOT(CheckStatus()));
     timer_->start();
 }
 
@@ -89,11 +90,54 @@ void MainWindow::SetEditable_(bool editable)
     ui->horizontalScrollBarProjection->setEnabled(editable);
     ui->horizontalScrollBarSinogram->setEnabled(editable);
     ui->lineEditNumSlices->setEnabled(editable);
+    ui->lineEditNumAngles->setEnabled(editable);
 }
 
-void MainWindow::UpdateParameterDisplay_(const ReconTaskParameter &param)
+QString GetLabelStringFromDataType(recontaskparameter_pb::ReconTaskParameterPB_FileDataType data_type) {
+    using FileDataType = recontaskparameter_pb::ReconTaskParameterPB_FileDataType;
+    QString result;
+    switch (data_type) {
+    case FileDataType::ReconTaskParameterPB_FileDataType_FLOAT32: {
+        result = "float32";
+        break;
+    }
+    case FileDataType::ReconTaskParameterPB_FileDataType_FLOAT64: {
+        result = "float64";
+        break;
+    }
+    default:
+        std::cerr << "Use unimplemented data type." << std::endl;
+        result = "unknown";
+    }
+    return result;
+}
+
+QString GetLabelStringFromFileFormat(recontaskparameter_pb::ReconTaskParameterPB_FileFormat format) {
+    using FileFormat = recontaskparameter_pb::ReconTaskParameterPB_FileFormat;
+    QString result;
+    switch (format) {
+    case FileFormat::ReconTaskParameterPB_FileFormat_DICOM: {
+        result = "DICOM";
+        break;
+    }
+    case FileFormat::ReconTaskParameterPB_FileFormat_RAW_PROJECTION: {
+        result = "Raw (Projections)";
+        break;
+    }
+    case FileFormat::ReconTaskParameterPB_FileFormat_RAW_SINOGRAM: {
+        result = "Raw (Sinograms)";
+        break;
+    }
+    }
+    return result;
+}
+void MainWindow::UpdateParameterDisplay_()
 {
+    if (GetTaskCount_() == 0) return;
+    auto& current_task = CurrentTask_();
+    auto& param = current_task.GetParameter();
     SetEditable_(true);
+    UpdateStatusBar_();
     ui->lineEditTaskName->setText(param.task_name);
     ui->lineEditSysMat->setText(param.path_sysmat);
     ui->lineEditSinogram->setText(param.path_sinogram);
@@ -103,6 +147,8 @@ void MainWindow::UpdateParameterDisplay_(const ReconTaskParameter &param)
     ui->lineEditNumDualIters->setText(QString::number(param.num_dual_iters));
     ui->lineEditScatterCoeff->setText(QString::number(param.coeff_scatter));
     ui->lineEditScatterMap->setText(param.path_scatter_map);
+    ui->lineEditNumAngles->setText(QString::number(param.num_angles));
+    ui->lineEditNumSlices->setText((QString::number(param.num_slices)));
 
     if (param.use_nn) ui->checkBoxRestore->setCheckState(Qt::Checked);
     else ui->checkBoxRestore->setCheckState(Qt::Unchecked);
@@ -112,22 +158,54 @@ void MainWindow::UpdateParameterDisplay_(const ReconTaskParameter &param)
     ui->lineEditScatterMap->setEnabled(param.use_scatter_map);
     ui->pushButtonSelectScatterMap->setEnabled(param.use_scatter_map);
     ui->lineEditOutputDir->setText(param.output_dir);
-
+    ui->plainTextEditSinogramInfo->clear();
+    ui->plainTextEditSinogramInfo->appendPlainText(param.sinogram_info);
     ui->comboBoxIterator->setCurrentText(param.iterator_type);
-    if (CurrentTask_().GetLoadedFlag()) {
-        UpdateSinogram_(CurrentTask_().GetParameter().index_sinogram);
-        UpdateProjection_(CurrentTask_().GetParameter().index_projection);
+    if (current_task.GetLoadedFlag()) {
+        UpdateSinogram_(param.index_sinogram);
+        UpdateProjection_(param.index_projection);
+        std::cout << "param.index_sinogram: " << param.index_sinogram << std::endl;
+        ui->horizontalScrollBarProjection->setEnabled(true);
+        ui->comboBoxProjectionIndex->setEnabled(true);
+
+        ui->horizontalScrollBarProjection->setValue(param.index_projection);
+        ui->horizontalScrollBarProjection->setMinimum(0);
+        ui->horizontalScrollBarProjection->setMaximum(param.num_angles);
+        ui->horizontalScrollBarSinogram->setEnabled(true);
+
+        ui->comboBoxSinogramIndex->setEnabled(true);
+        ui->horizontalScrollBarSinogram->setValue(param.index_sinogram);
+        ui->horizontalScrollBarSinogram->setMinimum(0);
+        ui->horizontalScrollBarSinogram->setMaximum(param.num_slices);
+        DrawProjectionLine_();
+
+    } else {
+        ui->comboBoxProjectionIndex->setEnabled(false);
+        ui->comboBoxSinogramIndex->setEnabled(false);
+        ui->horizontalScrollBarProjection->setEnabled(false);
+        ui->horizontalScrollBarSinogram->setEnabled(false);
+        ui->labelProjectionImage->clear();
+        ui->labelProjectionImage->setText("Projections Preview");
+        ui->labelSinogramImage->clear();
+        ui->labelSinogramImage->setText("Sinograms Preview");
     }
+
+    if (param.reconstructed_tomographs.size()) {
+        ui->pushButtonShowResult->setEnabled(true);
+    } else {
+        ui->pushButtonShowResult->setEnabled(false);
+    }
+    ui->comboBoxDataType->setCurrentText(GetLabelStringFromDataType(param.file_data_type));
+    ui->comboBoxSinogramFormat->setCurrentText(GetLabelStringFromFileFormat(param.file_format));
     ParamChanged_();
 }
 
 void MainWindow::CreateNewTask_()
 {
+    task_array_.emplace_back(new ReconTask(this));
     ui->listWidgetTask->addItem("untitled task");
     ui->listWidgetTask->setCurrentRow(ui->listWidgetTask->count() - 1);
-    ReconTask task(this);
-    task_array_.emplace_back(std::move(task));
-    UpdateParameterDisplay_(CurrentTask_().GetParameter());
+    UpdateParameterDisplay_();
 }
 
 void MainWindow::UpdateStatusBar_() {
@@ -179,7 +257,7 @@ void MainWindow::on_actionNew_Task_triggered()
 void MainWindow::on_listWidgetTask_currentRowChanged(int currentRow)
 {
     if (currentRow < GetTaskCount_()) {
-        UpdateParameterDisplay_(CurrentTask_().GetParameter());
+        UpdateParameterDisplay_();
     }
 }
 
@@ -237,18 +315,21 @@ void MainWindow::on_pushButtonSave_clicked()
 {
     auto &param = GetCurrentParameter_();
     QString filename = param.task_name + ".task";
-    QString outputPath = QDir(param.output_dir).filePath(filename);
-    if (QDir(outputPath).isRelative()) {
-        QString baseDir = QDir::home().filePath("spect-recon");
-        QDir(baseDir).mkpath(param.output_dir);
-        outputPath = QDir(baseDir).filePath(outputPath);
+    QString output_path = filename;
+    if (!param.output_dir.isEmpty()) {
+        output_path = QDir(param.output_dir).filePath(filename);
     }
-    qDebug() << "Start saving to " << outputPath << "..." << endl;
-    int r = GetCurrentParameter_().ToProtobufFilePath(outputPath);
+    if (QDir(output_path).isRelative()) {
+        QString baseDir = QDir::home().filePath("spect-recon-data");
+        QDir(baseDir).mkpath(param.output_dir);
+        output_path = QDir(baseDir).filePath(output_path);
+    }
+    qDebug() << "Start saving to " << output_path << "..." << endl;
+    int r = GetCurrentParameter_().ToProtobufFilePath(output_path);
 
     if (r == EINVALID_PATH) {
         auto box = new QMessageBox(this);
-        box->setText(tr("Cannot open file ") + outputPath + ".");
+        box->setText(tr("Cannot open file ") + output_path + ".");
         box->exec();
     } else if (r == 0) {
         ui->statusbar->showMessage(tr("Task saved successfully."));
@@ -386,20 +467,44 @@ void MainWindow::on_lineEditGamma_editingFinished()
 
 void MainWindow::on_pushButtonSelectSinogram_clicked()
 {
+    int num_slices = 0;
+    int num_angles = 0;
+    int num_detectors = 128;
+    ReconTask& current_task = CurrentTask_();
+    auto& recon_param = current_task.GetParameter();
+
     SinogramFileReader::FileFormat file_format = SinogramFileReader::FileFormat::kDicom;
     auto file_format_s = ui->comboBoxSinogramFormat->currentText();
-    QString allowed_format("Raw Files (*.a00 *.proj)");
+    QString allowed_format;
     if (file_format_s == "DICOM") {
         file_format = SinogramFileReader::FileFormat::kDicom;
         allowed_format = "DICOM files (*.dcm)";
-    } else if (file_format_s == "Raw (Sinograms)") {
-        file_format = SinogramFileReader::FileFormat::kRawSinogram;
-        allowed_format = "Raw Files (*.a00 *.sin)";
-    } else if (file_format_s == "Raw (Projections)") {
-        file_format = SinogramFileReader::FileFormat::kRawProjection;
     } else {
-        std::cerr << "Invalid file_format: " << file_format_s.toStdString() << std::endl;
-        exit(-1);
+        if (file_format_s == "Raw (Sinograms)") {
+            file_format = SinogramFileReader::FileFormat::kRawSinogram;
+            allowed_format = "Raw Files (*.a00 *.sin)";
+        } else if (file_format_s == "Raw (Projections)") {
+            file_format = SinogramFileReader::FileFormat::kRawProjection;
+            allowed_format = "Raw Files (*.a00 *.proj)";
+        } else {
+            std::cerr << "Invalid file_format: " << file_format_s.toStdString() << std::endl;
+            exit(-1);
+        }
+        bool ok = false;
+        num_slices = ui->lineEditNumSlices->text().toUInt(&ok);
+        if (!ok) {
+            auto box = new QMessageBox(this);
+            box->setText("Positive value of # Slices is required.");
+            box->exec();
+            return;
+        }
+        num_angles = ui->lineEditNumAngles->text().toUInt(&ok);
+        if (!ok) {
+            auto box = new QMessageBox(this);
+            box->setText("Positive value of # Angles is required.");
+            box->exec();
+            return;
+        }
     }
 
     QString old = ui->lineEditSinogram->text();
@@ -438,35 +543,52 @@ void MainWindow::on_pushButtonSelectSinogram_clicked()
             exit(-1);
         }
 
-        bool is_integer = false;
-        uint num_slices = ui->lineEditNumSlices->text().toUInt(&is_integer);
-        if (!is_integer) {
+        SinogramFileReader reader(path.toStdString(), file_format, num_slices, file_data_type);
+        if (reader.GetStatus() == SinogramFileReader::Status::kFailToReadFile) {
             auto box = new QMessageBox(this);
-            box->setText("Positive Integer is required.");
+            box->setText(QString("Cannot read file ") + path + ".");
             box->exec();
-            ui->lineEditNumDualIters->setFocus();
+            return;
+        } else if (reader.GetStatus() == SinogramFileReader::Status::kInvalidShape) {
+            auto box = new QMessageBox(this);
+            box->setText(QString("Invalid shape for file ") + path + ".");
+            box->exec();
+            return;
+        } else if (reader.GetStatus() == SinogramFileReader::Status::kFailToParseFile) {
+            auto box = new QMessageBox(this);
+            box->setText(QString("Failed to parse file ") + path + ".");
+            box->exec();
             return;
         }
-        SinogramFileReader reader(path.toStdString(), file_format, num_slices, file_data_type);
-        ui->plainTextEditSinogramInfo->appendPlainText(QString::fromStdString(reader.GetSinogramInfo().GetInfoString()));
-        CurrentTask_().SetPixmapSinogramArray(reader.GetSinogramPixmap());
-        CurrentTask_().SetPixmapProjectionArray(reader.GetProjectionPixmap());
+        const auto& shape_sinogram = reader.GetSinogram().shape();
+        QString sinogram_info = QString::fromStdString(reader.GetSinogramInfo().GetInfoString());
+        ui->plainTextEditSinogramInfo->appendPlainText(sinogram_info);
 
-        auto& recon_param = CurrentTask_().GetParameter();
+        current_task.SetPixmapSinogramArray(reader.GetSinogramPixmap());
+        current_task.SetPixmapProjectionArray(reader.GetProjectionPixmap());
+
+        num_slices = shape_sinogram[0];
+        num_angles = shape_sinogram[1];
+        num_detectors = shape_sinogram[2];
+
         recon_param.sinogram = reader.GetSinogram();
         recon_param.projection = reader.GetProjection();
-
-        const auto& shape_sinogram = recon_param.sinogram.shape();
+        recon_param.sinogram_info = sinogram_info;
+        recon_param.num_slices = num_slices;
+        recon_param.num_angles = num_slices;
+        recon_param.num_detectors = num_detectors;
         assert (shape_sinogram.size() == 3);
-        ui->horizontalScrollBarSinogram->setMinimum(0);
-        ui->horizontalScrollBarSinogram->setMaximum(shape_sinogram[0] - 1);
 
-        const auto& shape_projection = recon_param.projection.shape();
-        assert (shape_projection.size() == 3);
+        ui->horizontalScrollBarProjection->setEnabled(true);
         ui->horizontalScrollBarProjection->setMinimum(0);
-        ui->horizontalScrollBarProjection->setMaximum(shape_projection[0] - 1);
+        ui->horizontalScrollBarProjection->setMaximum(num_angles - 1);
+        UpdateComboBoxProjectionIndex_();
 
-        CurrentTask_().SetLoadedFlag(true);
+        ui->horizontalScrollBarSinogram->setEnabled(true);
+        ui->horizontalScrollBarSinogram->setMinimum(0);
+        ui->horizontalScrollBarSinogram->setMaximum(num_slices - 1);
+        UpdateComboBoxSinogramIndex_();
+
         UpdateStatusBar_();
         ui->labelSinogramImage->setPixmap(CurrentTask_().GetCurrentPixmapSinogram());
         ui->labelProjectionImage->setPixmap(CurrentTask_().GetCurrentPixmapProjection());
@@ -477,8 +599,9 @@ void MainWindow::on_pushButtonSelectSinogram_clicked()
 
 void MainWindow::UpdateSinogram_(int value)
 {
+    ReconTask& current_task = CurrentTask_();
     CurrentTask_().GetParameter().index_sinogram = value;
-    ui->labelSinogramImage->setPixmap(CurrentTask_().GetCurrentPixmapSinogram());
+    ui->labelSinogramImage->setPixmap(current_task.GetCurrentPixmapSinogram());
 }
 
 void MainWindow::UpdateProjection_(int index)
@@ -529,6 +652,13 @@ void MainWindow::on_pushButtonRun_clicked()
 {
     ui->pushButtonRun->setEnabled(false);
     ui->actionRun_All_Tasks->setEnabled(false);
+    auto path_sysmat = ui->lineEditSysMat->text();
+    if (path_sysmat.isEmpty()) {
+        auto box = new QMessageBox(this);
+        box->setText("A system matrix must be provided.");
+        box->exec();
+        return;
+    }
     RunTask_(CurrentTaskIndex_());
 }
 
@@ -540,16 +670,23 @@ void MainWindow::on_actionImport_Tasks_triggered()
                                                 tr("Select s task file."),
                                                 current_dir_,
                                                 tr("TASK (*.task)"));
-    auto &param = GetCurrentParameter_();
+    auto& current_task = CurrentTask_();
+    auto& param = GetCurrentParameter_();
     param.FromProtobufFilePath(path);
-    UpdateParameterDisplay_(param);
+    if (param.sinogram.shape().size()) {
+        current_task.SetPixmapSinogramArray(GetPixmapArrayFromTensor3D(param.sinogram));
+        current_task.SetPixmapProjectionArray(GetPixmapArrayFromTensor3D(param.projection));
+    }
+    UpdateParameterDisplay_();
+    UpdateComboBoxProjectionIndex_();
+    UpdateComboBoxSinogramIndex_();
 }
 
 void MainWindow::RunTask_(int task_index)
 {
-    QVector<ReconTaskParameter> paramList;
     assert (task_index < GetTaskCount_());
-    task_array_[task_index].Start();
+    task_array_[task_index]->Start();
+    ui->pushButtonRun->setEnabled(false);
     UpdateStatusBar_();
 }
 
@@ -564,7 +701,7 @@ void MainWindow::on_comboBoxIterator_currentTextChanged(const QString &arg1)
 void MainWindow::RunAllTask_()
 {
     for (auto& task: task_array_) {
-        task.Start();
+        task->Start();
     }
 }
 
@@ -580,6 +717,7 @@ void MainWindow::on_horizontalScrollBarSinogram_valueChanged(int value)
 {
     UpdateSinogram_(value);
     DrawProjectionLine_();
+    ui->comboBoxSinogramIndex->setCurrentIndex(value);
     ParamChanged_();
 }
 
@@ -588,6 +726,7 @@ void MainWindow::on_horizontalScrollBarProjection_valueChanged(int value)
 {
     UpdateProjection_(value);
     DrawProjectionLine_();
+    ui->comboBoxProjectionIndex->setCurrentIndex(value);
     ParamChanged_();
 }
 
@@ -601,3 +740,136 @@ void MainWindow::DrawProjectionLine_() {
     }
     ui->labelProjectionImage->setPixmap(QPixmap::fromImage(projection_image_buffer_));
 }
+
+void MainWindow::on_pushButtonShowResult_clicked()
+{
+    ReconTask& current_task = CurrentTask_();
+    ReconTaskParameter& param = current_task.GetParameter();
+    QVector<QPixmap> pixmap_array;
+    for (const auto& result: current_task.GetResultArray()) {
+        pixmap_array.push_back(GetPixmapFromTensor2D(result));
+    }
+    ResultDialog *result_dialog = new ResultDialog(pixmap_array,
+                                                   GetPixmapFromTensor3D(param.sinogram, param.index_sinogram),
+                                                   this);
+    result_dialog->exec();
+}
+
+
+void MainWindow::on_comboBoxProjectionIndex_currentIndexChanged(int index)
+{
+    if (GetTaskCount_() == 0) return;
+    if (index < 0 || GetCurrentParameter_().projection.shape().empty()
+            || index >= GetCurrentParameter_().projection.shape()[0]) return;
+    UpdateProjection_(index);
+    DrawProjectionLine_();
+    ui->horizontalScrollBarProjection->setValue(index);
+    ParamChanged_();
+}
+
+
+void MainWindow::on_comboBoxSinogramIndex_currentIndexChanged(int index)
+{
+    if (GetTaskCount_() == 0) return;
+    if (index < 0 || GetCurrentParameter_().sinogram.shape().empty()
+            || index >= GetCurrentParameter_().sinogram.shape()[0]) return;
+    UpdateSinogram_(index);
+    DrawProjectionLine_();
+    ui->horizontalScrollBarSinogram->setValue(index);
+    ParamChanged_();
+}
+
+
+void MainWindow::on_comboBoxDataType_currentTextChanged(const QString &data_type_s)
+{
+    using recontaskparameter_pb::ReconTaskParameterPB_FileDataType;
+    ReconTaskParameterPB_FileDataType file_data_type;
+    if (data_type_s == "float32") {
+        file_data_type = ReconTaskParameterPB_FileDataType::ReconTaskParameterPB_FileDataType_FLOAT32;
+    } else if (data_type_s == "float64") {
+        file_data_type = ReconTaskParameterPB_FileDataType::ReconTaskParameterPB_FileDataType_FLOAT64;
+    } else if (data_type_s == "int8") {
+        file_data_type = ReconTaskParameterPB_FileDataType::ReconTaskParameterPB_FileDataType_INT8;
+    } else if (data_type_s == "uint8") {
+        file_data_type = ReconTaskParameterPB_FileDataType::ReconTaskParameterPB_FileDataType_UINT8;
+    } else if (data_type_s == "int16") {
+        file_data_type = ReconTaskParameterPB_FileDataType::ReconTaskParameterPB_FileDataType_INT16;
+    } else if (data_type_s == "uint16") {
+        file_data_type = ReconTaskParameterPB_FileDataType::ReconTaskParameterPB_FileDataType_UINT16;
+    } else if (data_type_s == "int32") {
+        file_data_type = ReconTaskParameterPB_FileDataType::ReconTaskParameterPB_FileDataType_INT32;
+    } else if (data_type_s == "uint32") {
+        file_data_type = ReconTaskParameterPB_FileDataType::ReconTaskParameterPB_FileDataType_UINT32;
+    } else if (data_type_s == "int64") {
+        file_data_type = ReconTaskParameterPB_FileDataType::ReconTaskParameterPB_FileDataType_INT64;
+    } else if (data_type_s == "uint64") {
+        file_data_type = ReconTaskParameterPB_FileDataType::ReconTaskParameterPB_FileDataType_UINT64;
+    } else {
+        std::cerr << "Invalid data_type: " << data_type_s.toStdString() << std::endl;
+        exit(-1);
+    }
+    GetCurrentParameter_().file_data_type = file_data_type;
+    ParamChanged_();
+}
+
+
+void MainWindow::on_comboBoxSinogramFormat_currentTextChanged(const QString &file_format_s)
+{
+    using recontaskparameter_pb::ReconTaskParameterPB_FileFormat;
+    ReconTaskParameterPB_FileFormat file_format;
+    QString allowed_format;
+    if (file_format_s == "DICOM") {
+        file_format = ReconTaskParameterPB_FileFormat::ReconTaskParameterPB_FileFormat_DICOM;
+    } else {
+        if (file_format_s == "Raw (Sinograms)") {
+            file_format = ReconTaskParameterPB_FileFormat::ReconTaskParameterPB_FileFormat_RAW_SINOGRAM;
+        } else if (file_format_s == "Raw (Projections)") {
+            file_format = ReconTaskParameterPB_FileFormat::ReconTaskParameterPB_FileFormat_RAW_PROJECTION;
+        } else {
+            std::cerr << "Invalid file_format: " << file_format_s.toStdString() << std::endl;
+            exit(-1);
+        }
+    }
+    GetCurrentParameter_().file_format = file_format;
+    ParamChanged_();
+}
+
+
+void MainWindow::on_lineEditNumSlices_textEdited(const QString &arg1)
+{
+    bool ok;
+    int num = arg1.toUInt(&ok);
+    if (!ok) {
+        ShowMessageBox("Positive # Slices is required.");
+        return;
+    }
+    GetCurrentParameter_().num_slices = num;
+    ParamChanged_();
+}
+
+
+void MainWindow::on_lineEditNumAngles_textEdited(const QString &arg1)
+{
+    bool ok;
+    int num = arg1.toUInt(&ok);
+    if (!ok) {
+        ShowMessageBox("Positive # Angles is required.");
+        return;
+    }
+    GetCurrentParameter_().num_angles = num;
+    ParamChanged_();
+}
+
+
+void MainWindow::on_lineEditScatterCoeff_textEdited(const QString &arg1)
+{
+    bool ok;
+    double num = arg1.toDouble(&ok);
+    if (!ok) {
+        ShowMessageBox("Positive Scatter Coeefficient is required.");
+        return;
+    }
+    GetCurrentParameter_().coeff_scatter = num;
+    ParamChanged_();
+}
+
