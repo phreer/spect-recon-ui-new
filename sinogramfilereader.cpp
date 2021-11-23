@@ -63,32 +63,32 @@ SinogramFileReader::SinogramFileReader(const std::string& file_name, FileFormat 
 void SinogramFileReader::ReadDicom_(const std::string& file_name)
 {
     DcmFileFormat dcm_file_format;
-    auto status = dcm_file_format.loadFile(file_name);
+    auto status = dcm_file_format.loadFile(file_name.c_str());
     if (status.good()) {
         dcm_file_format.getDataset()->print(std::cout);
-        std::string patient_name;
+        OFString patient_name;
         status = dcm_file_format.getDataset()->findAndGetOFString(DCM_PatientName, patient_name);
         if (status.bad()) {
             std::cerr << "Cannot read Tag PatientName.\n";
             patient_name = "Unknown";
         }
-        sinogram_info_.Set("PatientName", patient_name);
+        sinogram_info_.Set("PatientName", patient_name.c_str());
 
-        std::string study_description;
+        OFString study_description;
         status = dcm_file_format.getDataset()->findAndGetOFString(DCM_StudyDescription, study_description);
         if (status.bad()) {
             std::cerr << "Cannot read Tag StudyDescription.\n";
             study_description = "Unknown";
         }
-        sinogram_info_.Set("StudyDescription", study_description);
+        sinogram_info_.Set("StudyDescription", study_description.c_str());
 
-        std::string modality;
+        OFString modality;
         status = dcm_file_format.getDataset()->findAndGetOFString(DCM_Modality, modality);
         if (status.bad()) {
             std::cerr << "Cannot read Tag Modality.\n";
             modality = "Unknown";
         }
-        sinogram_info_.Set("Modality", modality);
+        sinogram_info_.Set("Modality", modality.c_str());
 
     } else {
         std::cerr << "Cannot open file '" << file_name << "'\n";

@@ -2,6 +2,9 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
+​​​​​​​DEFINES += ENABLE_PRECOMPILED_HEADERS=OFF
+QMAKE_CFLAGS_ISYSTEM = -I
+
 CONFIG += c++11
 
 # You can make your code fail to compile if it uses deprecated APIs.
@@ -17,10 +20,10 @@ SPECT_OMP_LIB_DIR = $$(HOME)/local/lib
 SPECT_NO_OMP_INCLUDE_DIR = ../spect-recon/include
 SPECT_NO_OMP_LIB_DIR = $$(HOME)/local/lib
 
-DCMTK_INCLUDE_DIR = $$(HOME)/local/include
-DCMTK_LIB_DIR = $$(HOME)/local/lib
+DCMTK_INCLUDE_DIR = /usr/include
+DCMTK_LIB_DIR = /usr/lib
 
-ONNXRUNTIME_INCLUDE_DIR = $$(HOME)/local/onnxruntime-linux-x64-1.8.0/include
+ONNXRUNTIME_INCLUDE_DIR = $$(HOME)/local/include/onnxruntime
 ONNXRUNTIME_LIB_DIR = $$(HOME)/local/lib
 
 # Set SPECT_TYPE to "OMP" for parallelized (OpenMP) version and "NO_OMP" for plain version.
@@ -64,7 +67,7 @@ LIBS += \
     -lonnxruntime \
     -lpthread \
     -L$${DCMTK_LIB_DIR} \
-    -ldcmdata -ldcmimgle -ldcmdata -lofstd -loflog -liconv -lz
+    -ldcmdata -ldcmimgle -ldcmdata -loflog -lofstd -lz -licuuc
 message($${LIBS})
 
 INCLUDEPATH += \

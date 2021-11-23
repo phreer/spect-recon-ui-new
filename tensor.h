@@ -10,6 +10,7 @@
 #include <iostream>
 #include <algorithm>
 #include <numeric>
+#include <cassert>
 
 class Tensor {
 public:
