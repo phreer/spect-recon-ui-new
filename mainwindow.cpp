@@ -7,6 +7,7 @@
 #include <QDir>
 #include <QFileDialog>
 
+#include "global_defs.h"
 #include "error_code.h"
 #include "reconthread.h"
 #include "sinogramfilereader.h"
@@ -543,7 +544,8 @@ void MainWindow::on_pushButtonSelectSinogram_clicked()
             exit(-1);
         }
 
-        SinogramFileReader reader(path.toStdString(), file_format, num_slices, file_data_type);
+        SinogramFileReader reader(path.toStdString(), file_format,
+                                  num_slices, num_angles, kNumDetectors, file_data_type);
         if (reader.GetStatus() == SinogramFileReader::Status::kFailToReadFile) {
             auto box = new QMessageBox(this);
             box->setText(QString("Cannot read file ") + path + ".");

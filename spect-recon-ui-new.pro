@@ -53,6 +53,9 @@ macx: {
 
     ONNXRUNTIME_INCLUDE_DIR = /usr/local/Cellar/onnxruntime/1.7.2/include/onnxruntime/core/session
     ONNXRUNTIME_LIB_DIR = /usr/local/Cellar/onnxruntime/1.7.2/lib
+
+    DCMTK_INCLUDE_DIR = $$(HOME)/local/include
+    DCMTK_LIB_DIR = $$(HOME)/local/lib
 }
 
 # QMAKE_CXXFLAGS += -fopenmp
@@ -67,7 +70,8 @@ LIBS += \
     -lonnxruntime \
     -lpthread \
     -L$${DCMTK_LIB_DIR} \
-    -ldcmdata -ldcmimgle -ldcmdata -loflog -lofstd -lz -licuuc
+    -ldcmdata -ldcmimgle -ldcmdata -loflog -lofstd -lz -liconv
+#     -ldcmdata -ldcmimgle -ldcmdata -loflog -lofstd -lz -licuuc
 message($${LIBS})
 
 INCLUDEPATH += \

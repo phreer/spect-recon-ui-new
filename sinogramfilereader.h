@@ -51,7 +51,7 @@ public:
      * @param format the format of the sinogram files
      * @param num_slices ignore for DICOM format, as this is contained in the DICOM file
      */
-    SinogramFileReader(const std::string& file_name, FileFormat format, int num_slices,
+    SinogramFileReader(const std::string& file_name, FileFormat format, int num_slices, int num_angles, int num_detectors,
                        FileDataType data_format = FileDataType::kFloat32);
     const SinogramInfo& GetSinogramInfo() const
     {

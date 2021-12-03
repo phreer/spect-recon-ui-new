@@ -6,11 +6,10 @@
 
 #include "dcmtk/dcmimgle/dcmimage.h"
 
-SinogramFileReader::SinogramFileReader(const std::string& file_name, FileFormat format, int num_slices,
+SinogramFileReader::SinogramFileReader(const std::string& file_name, FileFormat format,
+                                       int num_slices, int num_angles, int num_detectors,
                                        Tensor::FileDataType data_type)
 {
-    const int num_detectors = kNumDetectors;
-    const int num_angles = kNumAngles;
     switch (format) {
     case FileFormat::kDicom: {
         ReadDicom_(file_name);
