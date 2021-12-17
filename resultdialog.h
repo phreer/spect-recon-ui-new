@@ -15,7 +15,9 @@ class ResultDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit ResultDialog(const QVector<QPixmap>& result_array, const QPixmap& sinogram, QWidget *parent = nullptr);
+    explicit ResultDialog(const QVector<QPixmap>& result_array,
+                          const QPixmap& sinogram,
+                          QWidget *parent = nullptr);
     ~ResultDialog();
 
 private slots:

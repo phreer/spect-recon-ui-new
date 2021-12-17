@@ -1,12 +1,12 @@
 #include "utils.h"
 
 
-QVector<QPixmap> GetPixmapArrayFromTensor3D(const Tensor& tensor)
+std::vector<QPixmap> GetPixmapArrayFromTensor3D(const Tensor& tensor)
 {
     int num_images = tensor.shape()[0];
     int height = tensor.shape()[1];
     int width = tensor.shape()[2];
-    QVector<QPixmap> result;
+    std::vector<QPixmap> result;
     for (int i = 0; i < num_images; ++i) {
         QImage image(width, height, QImage::Format_RGB32);
         for (int j = 0; j < height; ++j) {

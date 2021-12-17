@@ -154,8 +154,8 @@ private:
 #ifdef DEBUG
         CheckIndex_();
 #endif
-        int result = 0;
-        int curr = data_.size();
+        size_t result = 0;
+        size_t curr = data_.size();
         for (size_t i = 0; i < index.size(); ++i) {
             curr /= shape_[i];
             result += index[i] * curr;
@@ -165,7 +165,7 @@ private:
 
     std::vector<int> ToIndex(size_t index) {
         std::vector<int> result(shape_.size());
-        int curr = data_.size();
+        size_t curr = data_.size();
         for (size_t i = 0; i < shape_.size(); ++i) {
             curr /= shape_[i];
             result[i] = index / curr;

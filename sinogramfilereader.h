@@ -68,11 +68,11 @@ public:
         assert (status_ == Status::kOK);
         return projection_;
     }
-    QVector<QPixmap> GetSinogramPixmap() const {
+    std::vector<QPixmap> GetSinogramPixmap() const {
         int num_images = sinogram_.shape()[0];
         int height = sinogram_.shape()[1];
         int width = sinogram_.shape()[2];
-        QVector<QPixmap> result;
+        std::vector<QPixmap> result;
         for (int i = 0; i < num_images; ++i) {
             QImage sinogram_image(width, height, QImage::Format_RGB32);
             for (int j = 0; j < height; ++j) {
@@ -85,11 +85,11 @@ public:
         }
         return result;
     }
-    QVector<QPixmap> GetProjectionPixmap() const {
+    std::vector<QPixmap> GetProjectionPixmap() const {
         int num_images = projection_.shape()[0];
         int height = projection_.shape()[1];
         int width = projection_.shape()[2];
-        QVector<QPixmap> result;
+        std::vector<QPixmap> result;
         for (int i = 0; i < num_images; ++i) {
             QImage image(width, height, QImage::Format_RGB32);
             for (int j = 0; j < height; ++j) {

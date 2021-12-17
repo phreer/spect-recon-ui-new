@@ -11,10 +11,6 @@
 
 #include "sinogram.h"
 
-const int64_t kNumSlices = 16;
-const int64_t kNumAngles = 120;
-const int64_t kNumDetectors = 128;
-
 class Scascnet
 {
 public:
@@ -36,10 +32,10 @@ public:
         Ort::AllocatorWithDefaultOptions allocator;
         std::vector<int64_t> input_node_dims;
         // iterate over all input nodes
-        for (int i = 0; i < input_node_names.size(); i++) {
+        for (size_t i = 0; i < input_node_names.size(); i++) {
             // print input node names
             char* input_name = sess_.GetInputName(i, allocator);
-            printf("Input %d : name=%s\n", i, input_name);
+            printf("Input %zu : name=%s\n", i, input_name);
             input_node_names[i] = input_name;
 
             // print input node types
@@ -47,16 +43,16 @@ public:
             auto tensor_info = type_info.GetTensorTypeAndShapeInfo();
 
             ONNXTensorElementDataType type = tensor_info.GetElementType();
-            printf("Input %d : type=%d\n", i, type);
+            printf("Input %zu : type=%d\n", i, type);
 
             // print input shapes/dims
             input_node_dims = tensor_info.GetShape();
-            printf("Input %d : num_dims=%zu\n", i, input_node_dims.size());
-            for (int j = 0; j < input_node_dims.size(); j++)
-                printf("Input %d : dim %d=%jd\n", i, j, input_node_dims[j]);
+            printf("Input %zu : num_dims=%zu\n", i, input_node_dims.size());
+            for (size_t j = 0; j < input_node_dims.size(); j++)
+                printf("Input %zu : dim %zu=%jd\n", i, j, input_node_dims[j]);
         }
         std::vector<const char*> output_node_names(sess_.GetOutputCount());
-        for (int i = 0; i < output_node_names.size(); i++) {
+        for (size_t i = 0; i < output_node_names.size(); i++) {
             output_node_names[i] = sess_.GetOutputName(i, allocator);
         }
         auto output_tensors = sess_.Run(Ort::RunOptions{ nullptr }, input_node_names.data(),

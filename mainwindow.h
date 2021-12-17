@@ -27,6 +27,15 @@ public:
     ~MainWindow();
 
 private slots:
+    void CheckStatus()
+    {
+        UpdateStatusBar_();
+        if (GetTaskCount_() && CurrentTask_().GetStatus() == ReconTask::Status::kCompleted) {
+            ui->pushButtonShowResult->setEnabled(true);
+        }
+    }
+    void TaskCompleted(ReconTask *recon_task);
+
     void on_actionExit_triggered();
 
     void on_actionNew_Task_triggered();
@@ -77,17 +86,10 @@ private slots:
 
     void on_actionRun_All_Tasks_triggered();
 
-//    void updateTaskStatus(int taskID, int process);
     void on_horizontalScrollBarSinogram_valueChanged(int value);
 
     void on_horizontalScrollBarProjection_valueChanged(int value);
 
-    void CheckStatus() {
-        UpdateStatusBar_();
-        if (GetTaskCount_() && CurrentTask_().GetStatus() == ReconTask::Status::kCompleted) {
-            ui->pushButtonShowResult->setEnabled(true);
-        }
-    }
     void on_pushButtonShowResult_clicked();
 
     void on_comboBoxProjectionIndex_currentIndexChanged(int index);
@@ -104,6 +106,10 @@ private slots:
 
     void on_lineEditScatterCoeff_textEdited(const QString &arg1);
 
+    void on_comboBoxResult_activated(int index);
+
+    void on_horizontalScrollBarResult_valueChanged(int value);
+
 private:
     void ReleaseData_();
     void UpdateParameterDisplay_();
@@ -116,7 +122,7 @@ private:
     void DrawProjectionLine_();
     int CurrentTaskIndex_() const;
     int GetTaskCount_() const {
-        return task_array_.size();
+        return static_cast<int>(task_array_.size());
     }
     void ShowMessageBox(const QString& message) {
         auto box = new QMessageBox(this);

@@ -2,9 +2,9 @@
 #define RECONTASK_H
 
 #include <QObject>
-#include <QVector>
 #include <QPixmap>
 
+#include "utils.h"
 #include "recontaskparameter.h"
 #include "reconthread.h"
 
@@ -34,12 +34,16 @@ public:
         return parameter_;
     }
     void Start() {
-        if (!thread_->isRunning()) {
+        if (thread_ && !thread_->isRunning()) {
+            pixmap_result_array_.clear();
+            result_iter_index_array_.clear();
+
             thread_->SetParameter(parameter_);
             thread_->start();
         }
     }
     Status GetStatus() const {
+        if (thread_ == nullptr) return Status::kFailedToReconstruct;
         if (thread_->isFinished()) {
             if (thread_->GetProgress() == 100) {
                 return Status::kCompleted;
@@ -60,7 +64,18 @@ public:
     const QString& GetTaskName() const {
         return parameter_.task_name;
     }
-    void SetPixmapSinogramArray(QVector<QPixmap>&& pixmap_sinogram_array) {
+    const QPixmap& GetPixmapResult(int index) const {
+        if (GetStatus() != Status::kCompleted) {
+            std::cerr << "Trying to get result pixmap from a non-completed reconstruction task!\n";
+            exit(-1);
+        }
+        return pixmap_result_array_[index];
+    }
+    const std::vector<int> GetResultIterIndexArray() const {
+        return result_iter_index_array_;
+    }
+
+    void SetPixmapSinogramArray(std::vector<QPixmap>&& pixmap_sinogram_array) {
         pixmap_sinogram_array_ = pixmap_sinogram_array;
     }
     const QPixmap& GetPixmapSinogram(int index) const {
@@ -69,7 +84,8 @@ public:
     const QPixmap& GetCurrentPixmapSinogram() const {
         return GetPixmapSinogram(parameter_.index_sinogram);
     }
-    void SetPixmapProjectionArray(QVector<QPixmap>&& pixmap_projection_array) {
+
+    void SetPixmapProjectionArray(std::vector<QPixmap>&& pixmap_projection_array) {
         pixmap_projection_array_ = pixmap_projection_array;
     }
     const QPixmap& GetPixmapProjection(int index) const {
@@ -82,25 +98,39 @@ public:
         return parameter_.sinogram.shape().size() > 0;
     }
     const std::vector<Tensor>& GetResultArray() const {
-        return thread_->GetResultArray();
+        return result_array_;
     }
     std::vector<Tensor>& GetResultArray() {
-        return parameter_.reconstructed_tomographs;
+        return result_array_;
     }
+protected:
+signals:
+    void TaskCompleted(ReconTask *recon_task);
+
 private slots:
     void OnThreadFinished()
     {
         if (thread_ == nullptr) return;
         parameter_.reconstructed_tomographs = thread_->GetResultArray();
+        result_iter_index_array_ = thread_->GetResultIterIndexArray();
+        result_array_ = thread_->GetResultArray();
+        for (auto& tensor: result_array_) {
+            pixmap_result_array_.push_back(GetPixmapFromTensor2D(tensor));
+        }
+        emit(TaskCompleted(this));
     }
 private:
     ReconTaskParameter parameter_;
     ReconThread *thread_;
 
     // For displaying
-    QVector<QPixmap> recon_result_array_;
-    QVector<QPixmap> pixmap_sinogram_array_;
-    QVector<QPixmap> pixmap_projection_array_;
+    std::vector<Tensor> result_array_;
+    std::vector<QPixmap> pixmap_result_array_;
+    std::vector<int> result_iter_index_array_;
+
+    std::vector<QPixmap> pixmap_sinogram_array_;
+    std::vector<QPixmap> pixmap_projection_array_;
+    std::vector<QPixmap> restored_sinogram_array_;
 };
 
 #endif // RECONTASK_H

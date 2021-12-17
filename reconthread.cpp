@@ -8,11 +8,10 @@
 #include <QDebug>
 #include <QElapsedTimer>
 
+#include "global_defs.h"
 #include "spect.h"
 #include "scascnet.h"
 #include "sinogram.h"
-
-#define OS_LINUX
 
 ReconThread::ReconThread(QObject *parent):
     QThread(parent)
@@ -28,8 +27,9 @@ ReconThread::ReconThread(QObject *parent):
 }
 
 void ReconThread::SetParameter(const ReconTaskParameter &param) {
-    QString base_dir = QDir::home().filePath("spect-recon");
+    spect_param_.io_param.load_sinogram_from_file = false;
 
+    QString base_dir = kBaseDir;
     spect_param_.io_param.sino_path = param.path_sinogram.toStdString();
     spect_param_.io_param.sysmat_path = param.path_sysmat.toStdString();
     spect_param_.io_param.sca_path = param.path_scatter_map.toStdString();
@@ -55,7 +55,6 @@ void ReconThread::SetParameter(const ReconTaskParameter &param) {
     }
     spect_param_.io_param.outputdir = outputDir.toStdString();
 
-
     const int sinogram_start_index = std::max<int>(param.index_sinogram - kNumSlices / 2 + 1, 0);
     const int sinogram_inner_index = param.index_sinogram - sinogram_start_index;
     const int sinogram_end_index = std::min<int>(sinogram_start_index + kNumSlices, param.sinogram.shape()[0]);
@@ -66,9 +65,15 @@ void ReconThread::SetParameter(const ReconTaskParameter &param) {
     }
     Sinogram<double> input_sinogram(buff, kNumSlices, kNumAngles, kNumDetectors);
     Sinogram<double> restored_sinogram;
-    if (param.use_nn) {
+    if (param.use_nn && param.num_detectors == kNumDetectors
+            && param.num_angles == kNumAngles) {
+#ifdef WIN32
+        wchar_t model_name_buffer[512];
+        param.path_model.toWCharArray(model_name_buffer);
+        Scascnet net(model_name_buffer);
+#else
         Scascnet net(param.path_model.toStdString().c_str());
-
+#endif
         qDebug() << "Performing restoration..." << endl;
         QElapsedTimer timer;
         timer.start();
@@ -95,7 +100,6 @@ void ReconThread::SetParameter(const ReconTaskParameter &param) {
         spect_param_.io_param.sinogram_data[i] = restored_sinogram.GetData()[j];
     }
     spect_param_.io_param.asum_filename = (basename + ".asum").toStdString();
-    spect_param_.Print();
 
     if (param.iterator_type == "EM-Tikhonov") spect_param_.iterator_type = EM_TIKHONOV;
     else if (param.iterator_type == "PAPA-2DWavelet") spect_param_.iterator_type = PAPA_2D_WAVELET;
@@ -109,6 +113,8 @@ void ReconThread::SetParameter(const ReconTaskParameter &param) {
         qDebug() << "Invalid iterator_type: " << param.iterator_type << endl;
         exit(-1);
     }
+
+    spect_param_.Print();
 }
 
 void ReconThread::run()
@@ -119,25 +125,25 @@ void ReconThread::run()
 void ReconThread::Reconstruct()
 {
     progress_ = 0;
-    std::cout << "recon_result_array.size(): " << result_array_.size() << std::endl;
-    std::cout << "recon_result_array.size(): " << result_array_.size() << std::endl;
+    int step_temporary_result = 5;
     QElapsedTimer timer;
     timer.start();
     SPECTProject spect_project;
     spect_project.SetSpectParams(spect_param_);
     std::vector<std::vector<double> > recon_result_array;
-    spect_project.GenerateBackProject(&progress_, &recon_result_array);
-    std::cout << "Time consumed for reconstruction: " << timer.elapsed() << " (ms)." << endl;
-//    qDebug() << "Task completed." << endl;
+    spect_project.GenerateBackProject(&progress_, &recon_result_array, step_temporary_result);
+    std::cout << "Time consumed for reconstruction: "
+              << timer.elapsed() << " (ms)." << endl;
 
     std::vector<int> shape(2);
     shape[0] = spect_param_.rec_ysize;
     shape[1] = spect_param_.rec_xsize;
-    std::cout << "recon_result_array.size(): " << result_array_.size() << std::endl;
     for (size_t i = 0; i < recon_result_array.size(); ++i) {
         Tensor tensor(shape, std::move(recon_result_array[i]));
         tensor.NormalizeInPlace();
-        std::cout << "tensor.GetSum(): " << tensor.GetSum() << std::endl;
         result_array_.push_back(std::move(tensor));
+        if (i > 0) {
+            result_iter_index_array_.push_back(i * step_temporary_result);
+        }
     }
 }

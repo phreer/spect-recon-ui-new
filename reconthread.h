@@ -26,6 +26,9 @@ public:
     std::vector<Tensor>& GetResultArray() {
         return result_array_;
     }
+    const std::vector<int>& GetResultIterIndexArray() const {
+        return result_iter_index_array_;
+    }
 signals:
     void Progress();
 protected:
@@ -36,6 +39,7 @@ private:
     SPECTParam spect_param_;
     int progress_;
     std::vector<Tensor> result_array_;
+    std::vector<int> result_iter_index_array_;
 };
 
 #endif // RECONTHREAD_H

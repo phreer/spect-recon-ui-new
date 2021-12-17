@@ -6,8 +6,11 @@
 
 #include "dcmtk/dcmimgle/dcmimage.h"
 
-SinogramFileReader::SinogramFileReader(const std::string& file_name, FileFormat format,
-                                       int num_slices, int num_angles, int num_detectors,
+SinogramFileReader::SinogramFileReader(const std::string& file_name,
+                                       FileFormat format,
+                                       int num_slices,
+                                       int num_angles,
+                                       int num_detectors,
                                        Tensor::FileDataType data_type)
 {
     switch (format) {
@@ -20,11 +23,11 @@ SinogramFileReader::SinogramFileReader(const std::string& file_name, FileFormat 
         try {
           sinogram_ = Tensor::CreateTensorFromRawFile(file_name, shape, data_type);
         } catch (const Tensor::CannotOpenFileError &e) {
-          status_ = Status::kFailToReadFile;
-          return;
+            status_ = Status::kFailToReadFile;
+            return;
         } catch (const Tensor::FileLengthError &e) {
-          status_ = Status::kFailToParseFile;
-          return;
+            status_ = Status::kFailToParseFile;
+            return;
         }
         projection_ = sinogram_.Permute({1, 0, 2});
         break;

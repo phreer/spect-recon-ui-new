@@ -14,11 +14,11 @@ struct ReconTaskParameter
 {
     ReconTaskParameter() {
         const char *env_path_model = getenv("MODEL_PATH");
-        if (strlen(env_path_model)) {
+        if (env_path_model && strlen(env_path_model)) {
             path_model = QString::fromStdString(env_path_model);
         } else {
             const char *env_appdir = getenv("APPDIR");
-            if (strlen(env_appdir)) {
+            if (env_appdir && strlen(env_appdir)) {
                 path_model = QString::fromStdString(env_appdir) + "/usr/share/model/ckpt_e40_0_p25.2163251814763.pth.onnx";
             } else {
                 path_model = "ckpt_e40_0_p25.2163251814763.pth.onnx";

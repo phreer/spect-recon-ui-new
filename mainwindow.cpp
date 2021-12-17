@@ -13,14 +13,20 @@
 #include "sinogramfilereader.h"
 #include "utils.h"
 
-QString MainWindow::base_dir_ = QDir::home().filePath("spect-recon-data");
+QString MainWindow::base_dir_ = kBaseDir;
+
+void SetLabelImage(QLabel& label, const QPixmap& pixmap) {
+    int w = label.width();
+    int h = label.height();
+    label.setPixmap(pixmap.scaled(w, h, Qt::KeepAspectRatio));
+}
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    QDir::home().mkdir(".spect-recon-data");
+    QDir::home().mkdir(base_dir_);
     current_dir_ = base_dir_;
     progress_bar_ = new QProgressBar(this);
     progress_bar_->setRange(0, 100);
@@ -135,8 +141,10 @@ QString GetLabelStringFromFileFormat(recontaskparameter_pb::ReconTaskParameterPB
 void MainWindow::UpdateParameterDisplay_()
 {
     if (GetTaskCount_() == 0) return;
+
     auto& current_task = CurrentTask_();
     auto& param = current_task.GetParameter();
+
     SetEditable_(true);
     UpdateStatusBar_();
     ui->lineEditTaskName->setText(param.task_name);
@@ -191,19 +199,35 @@ void MainWindow::UpdateParameterDisplay_()
         ui->labelSinogramImage->setText("Sinograms Preview");
     }
 
-    if (param.reconstructed_tomographs.size()) {
+    if (current_task.GetStatus() == ReconTask::Status::kCompleted) {
         ui->pushButtonShowResult->setEnabled(true);
+        SetLabelImage(*ui->labelResultImage, current_task.GetPixmapResult(0));
+        const vector<int>& result_iter_index_array = current_task.GetResultIterIndexArray();
+        ui->comboBoxResult->addItem(tr("Final Result"));
+        for (auto index: result_iter_index_array) {
+            ui->comboBoxResult->addItem(QString::number(index));
+        }
+        ui->horizontalScrollBarResult->setMinimum(0);
+        ui->horizontalScrollBarResult->setMaximum(static_cast<int>(result_iter_index_array.size()));
+        ui->horizontalScrollBarResult->setEnabled(true);
     } else {
         ui->pushButtonShowResult->setEnabled(false);
+        ui->labelResultImage->clear();
+        ui->labelResultImage->setText("Result Preview");
+        ui->horizontalScrollBarResult->setEnabled(false);
+        ui->comboBoxResult->clear();
     }
-    ui->comboBoxDataType->setCurrentText(GetLabelStringFromDataType(param.file_data_type));
-    ui->comboBoxSinogramFormat->setCurrentText(GetLabelStringFromFileFormat(param.file_format));
+    ui->comboBoxDataType->setCurrentText(
+            GetLabelStringFromDataType(param.file_data_type));
+    ui->comboBoxSinogramFormat->setCurrentText(
+            GetLabelStringFromFileFormat(param.file_format));
     ParamChanged_();
 }
 
 void MainWindow::CreateNewTask_()
 {
     task_array_.emplace_back(new ReconTask(this));
+    connect(task_array_.back(), &ReconTask::TaskCompleted, this, &MainWindow::TaskCompleted);
     ui->listWidgetTask->addItem("untitled task");
     ui->listWidgetTask->setCurrentRow(ui->listWidgetTask->count() - 1);
     UpdateParameterDisplay_();
@@ -218,7 +242,7 @@ void MainWindow::UpdateStatusBar_() {
         switch (CurrentTask_().GetStatus()) {
         case Status::kInit: {
             text = "Please set parameters properly.";
-            progress_bar_->setTextVisible(false);
+            progress_bar_->setVisible(false);
             break;
         }
         case Status::kCompleted: {
@@ -235,7 +259,7 @@ void MainWindow::UpdateStatusBar_() {
         }
         case Status::kLoaded: {
             text = "Press Run button to run task.";
-            progress_bar_->setTextVisible(true);
+            progress_bar_->setVisible(true);
             progress_bar_->setValue(0);
             break;
         }
@@ -562,6 +586,7 @@ void MainWindow::on_pushButtonSelectSinogram_clicked()
             box->exec();
             return;
         }
+
         const auto& shape_sinogram = reader.GetSinogram().shape();
         QString sinogram_info = QString::fromStdString(reader.GetSinogramInfo().GetInfoString());
         ui->plainTextEditSinogramInfo->appendPlainText(sinogram_info);
@@ -592,8 +617,9 @@ void MainWindow::on_pushButtonSelectSinogram_clicked()
         UpdateComboBoxSinogramIndex_();
 
         UpdateStatusBar_();
-        ui->labelSinogramImage->setPixmap(CurrentTask_().GetCurrentPixmapSinogram());
-        ui->labelProjectionImage->setPixmap(CurrentTask_().GetCurrentPixmapProjection());
+        SetLabelImage(*ui->labelSinogramImage, CurrentTask_().GetCurrentPixmapSinogram());
+        SetLabelImage(*ui->labelProjectionImage, CurrentTask_().GetCurrentPixmapProjection());
+
         DrawProjectionLine_();
         current_dir_ = QFileInfo(path).absoluteDir().path();
     }
@@ -603,14 +629,20 @@ void MainWindow::UpdateSinogram_(int value)
 {
     ReconTask& current_task = CurrentTask_();
     CurrentTask_().GetParameter().index_sinogram = value;
-    ui->labelSinogramImage->setPixmap(current_task.GetCurrentPixmapSinogram());
+    int w = ui->labelSinogramImage->width();
+    int h = ui->labelSinogramImage->height();
+    ui->labelSinogramImage->setPixmap(
+            current_task.GetCurrentPixmapSinogram().scaled(w, h, Qt::KeepAspectRatio));
 }
 
 void MainWindow::UpdateProjection_(int index)
 {
     ReconTask& current_task = CurrentTask_();
     CurrentTask_().GetParameter().index_projection = index;
-    ui->labelProjectionImage->setPixmap(current_task.GetCurrentPixmapProjection());
+    int w = ui->labelProjectionImage->width();
+    int h = ui->labelProjectionImage->height();
+    ui->labelProjectionImage->setPixmap(
+            current_task.GetCurrentPixmapProjection().scaled(w, h, Qt::KeepAspectRatio));
 }
 
 void MainWindow::on_lineEditScatterMap_textChanged(const QString &arg1)
@@ -740,7 +772,10 @@ void MainWindow::DrawProjectionLine_() {
     for (int i = 0; i < num_detectors; ++i) {
         projection_image_buffer_.setPixel(i, index_sinogram, qRgb(255, 0, 0));
     }
-    ui->labelProjectionImage->setPixmap(QPixmap::fromImage(projection_image_buffer_));
+    int w = ui->labelProjectionImage->width();
+    int h = ui->labelProjectionImage->height();
+    ui->labelProjectionImage->setPixmap(
+            QPixmap::fromImage(projection_image_buffer_).scaled(w, h, Qt::KeepAspectRatio));
 }
 
 void MainWindow::on_pushButtonShowResult_clicked()
@@ -757,7 +792,27 @@ void MainWindow::on_pushButtonShowResult_clicked()
     result_dialog->exec();
 }
 
+void MainWindow::TaskCompleted(ReconTask *recon_task)
+{
+    if (&CurrentTask_() == recon_task) {
+        auto& result_iter_index_array = recon_task->GetResultIterIndexArray();
+        if (result_iter_index_array.size() == 0) {
+            std::cerr << "recon_task.GetResultArray() is empty.\n";
+            return;
+        }
+        int w = ui->labelResultImage->width();
+        int h = ui->labelResultImage->height();
+        ui->labelResultImage->setPixmap(
+                recon_task->GetPixmapResult(0).scaled(w, h, Qt::KeepAspectRatio));
+        ui->horizontalScrollBarResult->setMaximum(static_cast<int>(result_iter_index_array.size()));
+        ui->horizontalScrollBarResult->setMinimum(0);
 
+        ui->comboBoxResult->addItem("Final Result");
+        for (auto index: result_iter_index_array) {
+            ui->comboBoxResult->addItem(QString::number(index));
+        }
+    }
+}
 void MainWindow::on_comboBoxProjectionIndex_currentIndexChanged(int index)
 {
     if (GetTaskCount_() == 0) return;
@@ -875,3 +930,14 @@ void MainWindow::on_lineEditScatterCoeff_textEdited(const QString &arg1)
     ParamChanged_();
 }
 
+void MainWindow::on_comboBoxResult_activated(int index)
+{
+    ui->horizontalScrollBarResult->setValue(index);
+    SetLabelImage(*ui->labelResultImage, CurrentTask_().GetPixmapResult(index));
+}
+
+void MainWindow::on_horizontalScrollBarResult_valueChanged(int value)
+{
+    ui->comboBoxResult->setCurrentIndex(value);
+    SetLabelImage(*ui->labelResultImage, CurrentTask_().GetPixmapResult(value));
+}
