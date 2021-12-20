@@ -1,5 +1,13 @@
 #include "utils.h"
 
+#include <QLabel>
+#include <QPixmap>
+
+void SetLabelImage(QLabel& label, const QPixmap& pixmap) {
+    int w = label.width();
+    int h = label.height();
+    label.setPixmap(pixmap.scaled(w, h, Qt::KeepAspectRatio));
+}
 
 std::vector<QPixmap> GetPixmapArrayFromTensor3D(const Tensor& tensor)
 {

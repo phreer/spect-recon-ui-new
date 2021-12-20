@@ -1,4 +1,4 @@
-QT       += core gui
+QT += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -58,9 +58,6 @@ win32: {
         DCMTK_INCLUDE_DIR = "C:\Program Files (x86)\DCMTK-Release\include"
         DCMTK_LIB_DIR = "C:\Program Files (x86)\DCMTK-Release\lib"
 
-        ONNXRUNTIME_INCLUDE_DIR = "C:\Program Files (x86)\onnxruntime-win-x64-1.10.0\include"
-        ONNXRUNTIME_LIB_DIR = "C:\Program Files (x86)\onnxruntime-win-x64-1.10.0\lib"
-
         PTHREAD_INCLUDE_DIR = "C:\Users\liuwf\local\pthreads-w32-2-9-1-release\Pre-built.2\include"
         PTHREAD_LIB_DIR = "C:\Users\liuwf\local\pthreads-w32-2-9-1-release\Pre-built.2\lib\x64"
     }
@@ -74,12 +71,13 @@ win32: {
         DCMTK_INCLUDE_DIR = "C:\Program Files (x86)\DCMTK-Debug\include"
         DCMTK_LIB_DIR = "C:\Program Files (x86)\DCMTK-Debug\lib"
 
-        ONNXRUNTIME_INCLUDE_DIR = "C:\Program Files (x86)\onnxruntime-win-x64-1.10.0\include"
-        ONNXRUNTIME_LIB_DIR = "C:\Program Files (x86)\onnxruntime-win-x64-1.10.0\lib"
-
         PTHREAD_INCLUDE_DIR = "C:\Users\liuwf\local\pthreads-w32-2-9-1-release\Pre-built.2\include"
         PTHREAD_LIB_DIR = "C:\Users\liuwf\local\pthreads-w32-2-9-1-release\Pre-built.2\lib\x64"
     }
+
+    ONNXRUNTIME_INCLUDE_DIR = "C:\Users\liuwf\local\Microsoft.AI.MachineLearning.1.7.2\build\native\include"
+    ONNXRUNTIME_LIB_DIR = "C:\Users\liuwf\local\Microsoft.AI.MachineLearning.1.7.2\runtimes\win-x64\_native"
+
     INCLUDEPATH += $${PTHREAD_INCLUDE_DIR}
     LIBS += -L$${PTHREAD_LIB_DIR} -lpthreadVC2 -lWs2_32 -liphlpapi -lAdvapi32 -lnetapi32
 }

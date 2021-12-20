@@ -15,12 +15,6 @@
 
 QString MainWindow::base_dir_ = kBaseDir;
 
-void SetLabelImage(QLabel& label, const QPixmap& pixmap) {
-    int w = label.width();
-    int h = label.height();
-    label.setPixmap(pixmap.scaled(w, h, Qt::KeepAspectRatio));
-}
-
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -207,6 +201,7 @@ void MainWindow::UpdateParameterDisplay_()
         for (auto index: result_iter_index_array) {
             ui->comboBoxResult->addItem(QString::number(index));
         }
+        ui->comboBoxResult->setEnabled(true);
         ui->horizontalScrollBarResult->setMinimum(0);
         ui->horizontalScrollBarResult->setMaximum(static_cast<int>(result_iter_index_array.size()));
         ui->horizontalScrollBarResult->setEnabled(true);
@@ -216,6 +211,7 @@ void MainWindow::UpdateParameterDisplay_()
         ui->labelResultImage->setText("Result Preview");
         ui->horizontalScrollBarResult->setEnabled(false);
         ui->comboBoxResult->clear();
+        ui->comboBoxResult->setEnabled(false);
     }
     ui->comboBoxDataType->setCurrentText(
             GetLabelStringFromDataType(param.file_data_type));
@@ -602,7 +598,7 @@ void MainWindow::on_pushButtonSelectSinogram_clicked()
         recon_param.projection = reader.GetProjection();
         recon_param.sinogram_info = sinogram_info;
         recon_param.num_slices = num_slices;
-        recon_param.num_angles = num_slices;
+        recon_param.num_angles = num_angles;
         recon_param.num_detectors = num_detectors;
         assert (shape_sinogram.size() == 3);
 
@@ -787,7 +783,7 @@ void MainWindow::on_pushButtonShowResult_clicked()
         pixmap_array.push_back(GetPixmapFromTensor2D(result));
     }
     ResultDialog *result_dialog = new ResultDialog(pixmap_array,
-                                                   GetPixmapFromTensor3D(param.sinogram, param.index_sinogram),
+                                                   GetPixmapFromTensor2D(param.sinogram_used_to_reconstruct),
                                                    this);
     result_dialog->exec();
 }
@@ -806,11 +802,12 @@ void MainWindow::TaskCompleted(ReconTask *recon_task)
                 recon_task->GetPixmapResult(0).scaled(w, h, Qt::KeepAspectRatio));
         ui->horizontalScrollBarResult->setMaximum(static_cast<int>(result_iter_index_array.size()));
         ui->horizontalScrollBarResult->setMinimum(0);
-
+        ui->horizontalScrollBarResult->setEnabled(true);
         ui->comboBoxResult->addItem("Final Result");
         for (auto index: result_iter_index_array) {
             ui->comboBoxResult->addItem(QString::number(index));
         }
+        ui->comboBoxResult->setEnabled(true);
     }
 }
 void MainWindow::on_comboBoxProjectionIndex_currentIndexChanged(int index)

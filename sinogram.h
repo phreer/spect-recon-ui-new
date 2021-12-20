@@ -5,6 +5,8 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <algorithm>
+#include <numeric>
 
 template<typename T>
 std::vector<T> ReadArray(const std::string &path, size_t num_elements)
@@ -107,6 +109,15 @@ public:
             data[i] = static_cast<OtherType>(vec_[i]);
         }
         return Sinogram<OtherType>(std::move(data), num_slices_, num_angles_, num_detectors_);
+    }
+
+    void L1NormalizeInPlace()
+    {
+        int num_elements = num_slices_ * num_angles_ * num_detectors_;
+        double norm = std::accumulate(vec_.cbegin(), vec_.cend(), 0.) / static_cast<double>(num_elements);
+        for (auto& x: vec_) {
+            x /= norm;
+        }
     }
 private:
     size_t num_slices_;

@@ -4,6 +4,8 @@
 #include <QLocale>
 #include <QTranslator>
 
+#include "scascnet.h"
+
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
@@ -18,6 +20,6 @@ int main(int argc, char *argv[])
         }
     }
     MainWindow w;
-    w.show();
+    w.showMaximized();
     return a.exec();
 }

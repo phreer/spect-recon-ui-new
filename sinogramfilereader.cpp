@@ -67,7 +67,7 @@ void SinogramFileReader::ReadDicom_(const std::string& file_name)
     DcmFileFormat dcm_file_format;
     auto status = dcm_file_format.loadFile(file_name.c_str());
     if (status.good()) {
-        dcm_file_format.getDataset()->print(std::cout);
+        // dcm_file_format.getDataset()->print(std::cout);
         OFString patient_name;
         status = dcm_file_format.getDataset()->findAndGetOFString(DCM_PatientName, patient_name);
         if (status.bad()) {

@@ -55,13 +55,13 @@ public:
 
     Tensor(const std::vector<int> &shape, const std::vector<DataType> &data) : shape_(shape)
     {
-        CheckConsistency(shape, data.size());
+        CheckConsistency(shape, static_cast<int>(data.size()));
         data_ = data;
     }
 
     Tensor(const std::vector<int> &shape, std::vector<DataType> &&data): shape_(shape)
     {
-        CheckConsistency(shape, data.size());
+        CheckConsistency(shape, static_cast<int>(data.size()));
         data_ = move(data);
     }
 
@@ -74,12 +74,12 @@ public:
 
     std::vector<int> shape() { return shape_; }
     void Set(const std::vector<int>& shape, const std::vector<DataType>& data) {
-        CheckConsistency(shape, data.size());
+        CheckConsistency(shape, static_cast<int>(data.size()));
         shape_ = shape;
         data_ = data;
     }
     void Set(const std::vector<int>& shape, std::vector<DataType>&& data) {
-        CheckConsistency(shape, data.size());
+        CheckConsistency(shape, static_cast<int>(data.size()));
         shape_ = shape;
         data_ = std::move(data);
     }
@@ -96,10 +96,14 @@ public:
         kInt64,
     };
 
-    void ReadFromRawFile(const std::string &file_name, const std::vector<int> &shape, FileDataType format);
+    void ReadFromRawFile(const std::string &file_name,
+                         const std::vector<int> &shape,
+                         FileDataType format);
 
     static Tensor
-    CreateTensorFromRawFile(const std::string &file_name, const std::vector<int> &shape, FileDataType format) {
+    CreateTensorFromRawFile(const std::string &file_name,
+                            const std::vector<int> &shape,
+                            FileDataType format) {
         Tensor result;
         result.ReadFromRawFile(file_name, shape, format);
         return result;

@@ -41,6 +41,24 @@
      </item>
      <item row="1" column="0" alignment="Qt::AlignHCenter">
       <widget class="QLabel" name="labelSinogramImage">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>256</width>
+         <height>256</height>
+        </size>
+       </property>
+       <property name="baseSize">
+        <size>
+         <width>256</width>
+         <height>256</height>
+        </size>
+       </property>
        <property name="text">
         <string>Sinogram  Display</string>
        </property>
@@ -48,6 +66,24 @@
      </item>
      <item row="1" column="1" alignment="Qt::AlignHCenter">
       <widget class="QLabel" name="labelResultImage">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>256</width>
+         <height>256</height>
+        </size>
+       </property>
+       <property name="baseSize">
+        <size>
+         <width>256</width>
+         <height>256</height>
+        </size>
+       </property>
        <property name="text">
         <string>Result Display</string>
        </property>

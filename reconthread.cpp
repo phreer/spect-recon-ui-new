@@ -21,12 +21,12 @@ ReconThread::ReconThread(QObject *parent):
     int rv = SPECTInitialize();
     if (0 != rv) {
         qDebug() << __FUNCTION__ << ": ";
-        qDebug() << "fail to init planning..., error:%s\n";
+        qDebug() << "Fail to init planning..., error:%s\n";
         qDebug() << SPECTGetErrString((ERR_CODE)rv) << endl;
     }
 }
 
-void ReconThread::SetParameter(const ReconTaskParameter &param) {
+void ReconThread::SetParameter(ReconTaskParameter &param) {
     spect_param_.io_param.load_sinogram_from_file = false;
 
     QString base_dir = kBaseDir;
@@ -65,16 +65,19 @@ void ReconThread::SetParameter(const ReconTaskParameter &param) {
     }
     Sinogram<double> input_sinogram(buff, kNumSlices, kNumAngles, kNumDetectors);
     Sinogram<double> restored_sinogram;
+
     if (param.use_nn && param.num_detectors == kNumDetectors
             && param.num_angles == kNumAngles) {
 #ifdef WIN32
-        wchar_t model_name_buffer[512];
-        param.path_model.toWCharArray(model_name_buffer);
+        ORTCHAR_T model_name_buffer[512];
+        int len = param.path_model.toWCharArray(model_name_buffer);
+        model_name_buffer[len] = L'\0';
+        qDebug() << "Building model (Model path: " << param.path_model << ")..." << endl;
         Scascnet net(model_name_buffer);
 #else
         Scascnet net(param.path_model.toStdString().c_str());
 #endif
-        qDebug() << "Performing restoration..." << endl;
+        std::cout << "Performing restoration..." << std::endl;
         QElapsedTimer timer;
         timer.start();
         restored_sinogram = net.Run(input_sinogram.TransformType<float>()).TransformType<double>();
@@ -95,10 +98,16 @@ void ReconThread::SetParameter(const ReconTaskParameter &param) {
     } else {
         restored_sinogram = input_sinogram;
     }
+
+
     spect_param_.io_param.sinogram_data.resize(kNumAngles * kNumDetectors);
-    for (int i = 0, j = sinogram_inner_index * kNumAngles * kNumDetectors; i < kNumAngles * kNumDetectors; ++i, ++j) {
+    for (int i = 0, j = sinogram_inner_index * kNumAngles * kNumDetectors;
+         i < kNumAngles * kNumDetectors; ++i, ++j) {
         spect_param_.io_param.sinogram_data[i] = restored_sinogram.GetData()[j];
     }
+    param.sinogram_used_to_reconstruct = Tensor({kNumAngles, kNumDetectors}, spect_param_.io_param.sinogram_data);
+    param.sinogram_used_to_reconstruct.NormalizeInPlace();
+
     spect_param_.io_param.asum_filename = (basename + ".asum").toStdString();
 
     if (param.iterator_type == "EM-Tikhonov") spect_param_.iterator_type = EM_TIKHONOV;
@@ -130,6 +139,7 @@ void ReconThread::Reconstruct()
     timer.start();
     SPECTProject spect_project;
     spect_project.SetSpectParams(spect_param_);
+
     std::vector<std::vector<double> > recon_result_array;
     spect_project.GenerateBackProject(&progress_, &recon_result_array, step_temporary_result);
     std::cout << "Time consumed for reconstruction: "

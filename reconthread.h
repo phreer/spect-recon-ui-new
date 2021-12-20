@@ -19,7 +19,7 @@ public:
         result_array_(thread.result_array_)
     {}
     int GetProgress() const { return progress_; }
-    void SetParameter(const ReconTaskParameter& recon_task_param);
+    void SetParameter(ReconTaskParameter& recon_task_param);
     const std::vector<Tensor>& GetResultArray() const {
         return result_array_;
     }

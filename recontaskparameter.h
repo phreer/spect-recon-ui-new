@@ -5,6 +5,7 @@
 #include <QVector>
 #include <fstream>
 #include <memory>
+#include <QCoreApplication>
 
 #include "recontaskparameter.pb.h"
 #include "tensor.h"
@@ -21,7 +22,7 @@ struct ReconTaskParameter
             if (env_appdir && strlen(env_appdir)) {
                 path_model = QString::fromStdString(env_appdir) + "/usr/share/model/ckpt_e40_0_p25.2163251814763.pth.onnx";
             } else {
-                path_model = "ckpt_e40_0_p25.2163251814763.pth.onnx";
+                path_model = QCoreApplication::applicationDirPath() + "/ckpt_e40_0_p25.2163251814763.pth.onnx";
             }
         }
     }
@@ -67,6 +68,7 @@ struct ReconTaskParameter
     std::vector<Tensor> reconstructed_tomographs;
     Tensor projection;
     Tensor sinogram;
+    Tensor sinogram_used_to_reconstruct;
     int num_input_images;
 
     int index_sinogram = 0;

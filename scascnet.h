@@ -2,25 +2,29 @@
 #ifndef SCASCNET_H
 #define SCASCNET_H
 
-#include <onnxruntime_cxx_api.h>
 #include <string>
 #include <vector>
 #include <array>
 #include <utility>
 #include <assert.h>
+#include <iostream>
 
+#include <onnxruntime_cxx_api.h>
 #include "sinogram.h"
 
 class Scascnet
 {
 public:
     Scascnet(const ORTCHAR_T* model_path):
-        env_(ORT_LOGGING_LEVEL_WARNING, "test"), 
+        env_(ORT_LOGGING_LEVEL_WARNING, "Default"),
         sess_options_(nullptr),
         sess_(env_, model_path, sess_options_)
-    {}
+    {
+        std::cout << "Model built (Model path: " << model_path << ").\n";
+    }
     Sinogram<float> Run(Sinogram<float> input)
     {
+        input.L1NormalizeInPlace();
         auto memory_info = Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault);
         size_t num_elements = num_slices_ * num_angles_ * num_detectors_;
         std::array<int64_t, 4> input_shape{ 1, num_slices_, num_angles_, num_detectors_ };

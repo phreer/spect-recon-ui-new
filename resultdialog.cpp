@@ -1,6 +1,8 @@
 #include "resultdialog.h"
 #include "ui_resultdialog.h"
 
+#include "utils.h"
+
 ResultDialog::ResultDialog(const QVector<QPixmap>& result_array, const QPixmap& sinogram, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::ResultDialog),
@@ -12,11 +14,15 @@ ResultDialog::ResultDialog(const QVector<QPixmap>& result_array, const QPixmap& 
     for (int i = 1; i < result_array_.size(); ++i) {
         ui->comboBoxResultIndex->addItem(QString::number(i));
     }
+    ui->comboBoxResultIndex->setEnabled(true);
+
     ui->horizontalScrollBarResult->setValue(0);
     ui->horizontalScrollBarResult->setMinimum(0);
     ui->horizontalScrollBarResult->setMaximum(result_array_.size() - 1);
-    ui->labelSinogramImage->setPixmap(sinogram_);
-    ui->labelResultImage->setPixmap(result_array_[0]);
+    ui->horizontalScrollBarResult->setEnabled(true);
+
+    SetLabelImage(*ui->labelSinogramImage, sinogram_);
+    SetLabelImage(*ui->labelResultImage, result_array_[0]);
 }
 
 ResultDialog::~ResultDialog()
@@ -26,7 +32,9 @@ ResultDialog::~ResultDialog()
 
 void ResultDialog::on_horizontalScrollBarResult_valueChanged(int value)
 {
-    ui->labelResultImage->setPixmap(result_array_[value]);
+    if (value < 0 || value >= result_array_.size()) return;
+    SetLabelImage(*ui->labelResultImage, result_array_[value]);
+    SetLabelImage(*ui->labelSinogramImage, sinogram_);
     ui->comboBoxResultIndex->setCurrentIndex(value);
 }
 
@@ -39,5 +47,6 @@ void ResultDialog::on_comboBoxResultIndex_currentTextChanged(const QString &arg1
         index = 0;
     }
     ui->horizontalScrollBarResult->setValue(index);
-    ui->labelResultImage->setPixmap(result_array_[index]);
+    SetLabelImage(*ui->labelSinogramImage, sinogram_);
+    SetLabelImage(*ui->labelResultImage, result_array_[index]);
 }
