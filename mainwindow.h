@@ -30,8 +30,15 @@ private slots:
     void CheckStatus()
     {
         UpdateStatusBar_();
-        if (GetTaskCount_() && CurrentTask_().GetStatus() == ReconTask::Status::kCompleted) {
-            ui->pushButtonShowResult->setEnabled(true);
+        if (GetTaskCount_()) {
+            if (CurrentTask_().GetStatus() == ReconTask::Status::kCompleted) {
+                ui->pushButtonShowResult->setEnabled(true);
+            }
+            if (CurrentTask_().GetStatus() == ReconTask::Status::kRunning) {
+                ui->pushButtonRun->setEnabled(false);
+            } else {
+                ui->pushButtonRun->setEnabled(true);
+            }
         }
     }
     void TaskCompleted(ReconTask *recon_task);
@@ -109,6 +116,10 @@ private slots:
     void on_comboBoxResult_activated(int index);
 
     void on_horizontalScrollBarResult_valueChanged(int value);
+
+    void on_comboBoxFilter_currentTextChanged(const QString &arg1);
+
+    void on_lineEditNumDetectors_textEdited(const QString &arg1);
 
 private:
     void ReleaseData_();

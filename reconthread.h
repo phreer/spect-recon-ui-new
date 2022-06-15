@@ -38,6 +38,7 @@ private:
     void Reconstruct();
     SPECTParam spect_param_;
     int progress_;
+
     std::vector<Tensor> result_array_;
     std::vector<int> result_iter_index_array_;
 };

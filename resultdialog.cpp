@@ -50,3 +50,10 @@ void ResultDialog::on_comboBoxResultIndex_currentTextChanged(const QString &arg1
     SetLabelImage(*ui->labelSinogramImage, sinogram_);
     SetLabelImage(*ui->labelResultImage, result_array_[index]);
 }
+
+void ResultDialog::resizeEvent(QResizeEvent *event) {
+    if (ui->labelSinogramImage->pixmap())
+        SetLabelImage(*ui->labelSinogramImage, *ui->labelSinogramImage->pixmap());
+    if (ui->labelResultImage->pixmap())
+        SetLabelImage(*ui->labelResultImage, *ui->labelResultImage->pixmap());
+}

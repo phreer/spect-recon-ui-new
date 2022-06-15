@@ -74,6 +74,9 @@ struct ReconTaskParameter
     int index_sinogram = 0;
     int index_projection = 0;
     int resolution = 128;
+
+    QString filter_type;
+
     // Load task parameter from given protobuf object `param_pb`.
     int FromProtobuf(const recontaskparameter_pb::ReconTaskParameterPB &param_pb);
     // Load task parameter from protobuf object that will be constructed from file

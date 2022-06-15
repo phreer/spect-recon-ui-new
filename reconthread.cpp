@@ -28,8 +28,21 @@ ReconThread::ReconThread(QObject *parent):
 
 void ReconThread::SetParameter(ReconTaskParameter &param) {
     spect_param_.io_param.load_sinogram_from_file = false;
+    const int num_detectors = param.num_detectors;
+    const int num_angles = param.num_angles;
+
+    spect_param_.num_step = num_angles;
+    spect_param_.step_sym = num_angles;
+    spect_param_.det_usize = num_detectors;
+    spect_param_.rec_xsize = num_detectors;
+    spect_param_.rec_ysize = num_detectors;
+    spect_param_.dp.carm_num = num_detectors;
+    spect_param_.sp.gsz = num_detectors;
+    spect_param_.size_recon = num_detectors * num_detectors;
+    spect_param_.size_proj = num_detectors * num_angles;
 
     QString base_dir = kBaseDir;
+
     spect_param_.io_param.sino_path = param.path_sinogram.toStdString();
     spect_param_.io_param.sysmat_path = param.path_sysmat.toStdString();
     spect_param_.io_param.sca_path = param.path_scatter_map.toStdString();
@@ -55,19 +68,22 @@ void ReconThread::SetParameter(ReconTaskParameter &param) {
     }
     spect_param_.io_param.outputdir = outputDir.toStdString();
 
-    const int sinogram_start_index = std::max<int>(param.index_sinogram - kNumSlices / 2 + 1, 0);
-    const int sinogram_inner_index = param.index_sinogram - sinogram_start_index;
-    const int sinogram_end_index = std::min<int>(sinogram_start_index + kNumSlices, param.sinogram.shape()[0]);
-    std::vector<double> buff(kNumSlices * kNumAngles * kNumDetectors);
-    const int element_start_index = sinogram_start_index * kNumDetectors * kNumAngles;
-    for (int i = 0; i < (sinogram_end_index - sinogram_start_index) * kNumAngles * kNumDetectors; ++i) {
-        buff[i] = param.sinogram.data()[element_start_index + i];
-    }
-    Sinogram<double> input_sinogram(buff, kNumSlices, kNumAngles, kNumDetectors);
-    Sinogram<double> restored_sinogram;
+    spect_param_.io_param.sinogram_data.resize(num_angles * num_detectors);
 
     if (param.use_nn && param.num_detectors == kNumDetectors
             && param.num_angles == kNumAngles) {
+        const int sinogram_start_index = std::max<int>(param.index_sinogram - kNumSlices / 2 + 1, 0);
+        const int sinogram_inner_index = param.index_sinogram - sinogram_start_index;
+        assert (sinogram_inner_index >= 0);
+        const int sinogram_end_index = std::min<int>(sinogram_start_index + kNumSlices, param.sinogram.shape()[0]);
+        std::vector<double> buff(kNumSlices * kNumAngles * kNumDetectors);
+        const int element_start_index = sinogram_start_index * kNumDetectors * kNumAngles;
+        for (int i = 0; i < (sinogram_end_index - sinogram_start_index) * kNumAngles * kNumDetectors; ++i) {
+            buff[i] = param.sinogram.data()[element_start_index + i];
+        }
+        Sinogram<double> input_sinogram(buff, kNumSlices, kNumAngles, kNumDetectors);
+        Sinogram<double> restored_sinogram;
+
 #ifdef WIN32
         ORTCHAR_T model_name_buffer[512];
         int len = param.path_model.toWCharArray(model_name_buffer);
@@ -95,17 +111,20 @@ void ReconThread::SetParameter(ReconTaskParameter &param) {
         spect_param_.io_param.sino_path = restoredSinogramOutputPath;
         qDebug() << "Restored sinogram saved to "
             << QString::fromStdString(restoredSinogramOutputPath) << endl;
+
+        for (int i = 0, j = sinogram_inner_index * kNumAngles * kNumDetectors;
+             i < kNumAngles * kNumDetectors; ++i, ++j) {
+            spect_param_.io_param.sinogram_data[i] = restored_sinogram.GetData()[j];
+        }
     } else {
-        restored_sinogram = input_sinogram;
+        const int offset = param.index_sinogram * num_detectors * num_angles;
+        for (int i = 0; i < num_detectors * num_angles; ++i) {
+            spect_param_.io_param.sinogram_data[i] = param.sinogram.data()[offset + i];
+        }
     }
 
 
-    spect_param_.io_param.sinogram_data.resize(kNumAngles * kNumDetectors);
-    for (int i = 0, j = sinogram_inner_index * kNumAngles * kNumDetectors;
-         i < kNumAngles * kNumDetectors; ++i, ++j) {
-        spect_param_.io_param.sinogram_data[i] = restored_sinogram.GetData()[j];
-    }
-    param.sinogram_used_to_reconstruct = Tensor({kNumAngles, kNumDetectors}, spect_param_.io_param.sinogram_data);
+    param.sinogram_used_to_reconstruct = Tensor({num_angles, num_detectors}, spect_param_.io_param.sinogram_data);
     param.sinogram_used_to_reconstruct.NormalizeInPlace();
 
     spect_param_.io_param.asum_filename = (basename + ".asum").toStdString();
@@ -123,6 +142,14 @@ void ReconThread::SetParameter(ReconTaskParameter &param) {
         exit(-1);
     }
 
+    // Set filter
+    if (param.filter_type == "MedianGaussianFilter") {
+        spect_param_.filtering = true;
+        spect_param_.filter_type = FilterType::kMedianGaussianFilter;
+    } else if (param.filter_type == "MeanFilterDropMinMax") {
+        spect_param_.filtering = true;
+        spect_param_.filter_type = FilterType::kMeanFilterDropMinMax;
+    }
     spect_param_.Print();
 }
 
@@ -135,6 +162,9 @@ void ReconThread::Reconstruct()
 {
     progress_ = 0;
     int step_temporary_result = 5;
+    result_array_.clear();
+    result_iter_index_array_.clear();
+
     QElapsedTimer timer;
     timer.start();
     SPECTProject spect_project;

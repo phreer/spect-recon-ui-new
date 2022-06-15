@@ -5,6 +5,7 @@
 #include <QVector>
 #include <QPixmap>
 #include <QImage>
+#include <QResizeEvent>
 
 namespace Ui {
 class ResultDialog;
@@ -19,6 +20,8 @@ public:
                           const QPixmap& sinogram,
                           QWidget *parent = nullptr);
     ~ResultDialog();
+protected:
+    virtual void resizeEvent(QResizeEvent *event) override;
 
 private slots:
     void on_horizontalScrollBarResult_valueChanged(int value);

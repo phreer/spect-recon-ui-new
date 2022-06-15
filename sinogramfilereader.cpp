@@ -102,11 +102,7 @@ void SinogramFileReader::ReadDicom_(const std::string& file_name)
     int image_width = dicom_image.getWidth();
     int image_height = dicom_image.getHeight();
     int num_frames = dicom_image.getNumberOfFrames();
-    if (image_width != kNumDetectors || num_frames != kNumAngles) {
-        status_ = Status::kInvalidShape;
-        std::cerr << "Invalid shape: (H: " << image_height << ", W: " << image_width << ", N: " << num_frames << ")" << std::endl;
-        return;
-    }
+
     std::cout << "Image Shape (W, H, F): (" << image_width << ", " << image_height << ", " << num_frames << ")\n";
     std::vector<int> shape{num_frames, image_height, image_width};
     projection_ = Tensor(shape);

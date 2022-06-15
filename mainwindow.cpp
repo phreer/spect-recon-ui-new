@@ -28,7 +28,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->statusbar->addPermanentWidget(progress_bar_, 0);
 
     timer_ = new QTimer(this);
-    timer_->setInterval(1000);
+    timer_->setInterval(200);
     connect(timer_, SIGNAL(timeout()), this, SLOT(CheckStatus()));
     timer_->start();
 }
@@ -90,8 +90,12 @@ void MainWindow::SetEditable_(bool editable)
     ui->comboBoxSinogramFormat->setEnabled(editable);
     ui->horizontalScrollBarProjection->setEnabled(editable);
     ui->horizontalScrollBarSinogram->setEnabled(editable);
+
     ui->lineEditNumSlices->setEnabled(editable);
     ui->lineEditNumAngles->setEnabled(editable);
+    ui->lineEditNumDetectors->setEnabled(editable);
+
+    ui->comboBoxFilter->setEnabled(editable);
 }
 
 QString GetLabelStringFromDataType(recontaskparameter_pb::ReconTaskParameterPB_FileDataType data_type) {
@@ -164,10 +168,10 @@ void MainWindow::UpdateParameterDisplay_()
     ui->plainTextEditSinogramInfo->clear();
     ui->plainTextEditSinogramInfo->appendPlainText(param.sinogram_info);
     ui->comboBoxIterator->setCurrentText(param.iterator_type);
+    ui->comboBoxFilter->setCurrentText(param.filter_type);
     if (current_task.GetLoadedFlag()) {
         UpdateSinogram_(param.index_sinogram);
         UpdateProjection_(param.index_projection);
-        std::cout << "param.index_sinogram: " << param.index_sinogram << std::endl;
         ui->horizontalScrollBarProjection->setEnabled(true);
         ui->comboBoxProjectionIndex->setEnabled(true);
 
@@ -488,11 +492,12 @@ void MainWindow::on_lineEditGamma_editingFinished()
 
 void MainWindow::on_pushButtonSelectSinogram_clicked()
 {
-    int num_slices = 0;
-    int num_angles = 0;
-    int num_detectors = 128;
     ReconTask& current_task = CurrentTask_();
     auto& recon_param = current_task.GetParameter();
+
+    int num_slices = recon_param.num_slices;
+    int num_angles = recon_param.num_angles;
+    int num_detectors = recon_param.num_detectors;
 
     SinogramFileReader::FileFormat file_format = SinogramFileReader::FileFormat::kDicom;
     auto file_format_s = ui->comboBoxSinogramFormat->currentText();
@@ -510,21 +515,6 @@ void MainWindow::on_pushButtonSelectSinogram_clicked()
         } else {
             std::cerr << "Invalid file_format: " << file_format_s.toStdString() << std::endl;
             exit(-1);
-        }
-        bool ok = false;
-        num_slices = ui->lineEditNumSlices->text().toUInt(&ok);
-        if (!ok) {
-            auto box = new QMessageBox(this);
-            box->setText("Positive value of # Slices is required.");
-            box->exec();
-            return;
-        }
-        num_angles = ui->lineEditNumAngles->text().toUInt(&ok);
-        if (!ok) {
-            auto box = new QMessageBox(this);
-            box->setText("Positive value of # Angles is required.");
-            box->exec();
-            return;
         }
     }
 
@@ -565,7 +555,7 @@ void MainWindow::on_pushButtonSelectSinogram_clicked()
         }
 
         SinogramFileReader reader(path.toStdString(), file_format,
-                                  num_slices, num_angles, kNumDetectors, file_data_type);
+                                  num_slices, num_angles, num_detectors, file_data_type);
         if (reader.GetStatus() == SinogramFileReader::Status::kFailToReadFile) {
             auto box = new QMessageBox(this);
             box->setText(QString("Cannot read file ") + path + ".");
@@ -680,15 +670,7 @@ void MainWindow::on_lineEditScatterCoeff_editingFinished()
 
 void MainWindow::on_pushButtonRun_clicked()
 {
-    ui->pushButtonRun->setEnabled(false);
-    ui->actionRun_All_Tasks->setEnabled(false);
-    auto path_sysmat = ui->lineEditSysMat->text();
-    if (path_sysmat.isEmpty()) {
-        auto box = new QMessageBox(this);
-        box->setText("A system matrix must be provided.");
-        box->exec();
-        return;
-    }
+
     RunTask_(CurrentTaskIndex_());
 }
 
@@ -715,8 +697,13 @@ void MainWindow::on_actionImport_Tasks_triggered()
 void MainWindow::RunTask_(int task_index)
 {
     assert (task_index < GetTaskCount_());
-    task_array_[task_index]->Start();
+
     ui->pushButtonRun->setEnabled(false);
+    ui->horizontalScrollBarResult->setEnabled(false);
+    ui->comboBoxResult->setEnabled(false);
+    ui->pushButtonShowResult->setEnabled(false);
+
+    task_array_[task_index]->Start();
     UpdateStatusBar_();
 }
 
@@ -733,13 +720,12 @@ void MainWindow::RunAllTask_()
     for (auto& task: task_array_) {
         task->Start();
     }
+    UpdateStatusBar_();
 }
 
 
 void MainWindow::on_actionRun_All_Tasks_triggered()
 {
-    ui->pushButtonRun->setEnabled(false);
-    ui->actionRun_All_Tasks->setEnabled(false);
     RunAllTask_();
 }
 
@@ -796,10 +782,8 @@ void MainWindow::TaskCompleted(ReconTask *recon_task)
             std::cerr << "recon_task.GetResultArray() is empty.\n";
             return;
         }
-        int w = ui->labelResultImage->width();
-        int h = ui->labelResultImage->height();
-        ui->labelResultImage->setPixmap(
-                recon_task->GetPixmapResult(0).scaled(w, h, Qt::KeepAspectRatio));
+
+        SetLabelImage(*ui->labelResultImage, recon_task->GetPixmapResult(0));
         ui->horizontalScrollBarResult->setMaximum(static_cast<int>(result_iter_index_array.size()));
         ui->horizontalScrollBarResult->setMinimum(0);
         ui->horizontalScrollBarResult->setEnabled(true);
@@ -874,7 +858,18 @@ void MainWindow::on_comboBoxSinogramFormat_currentTextChanged(const QString &fil
     QString allowed_format;
     if (file_format_s == "DICOM") {
         file_format = ReconTaskParameterPB_FileFormat::ReconTaskParameterPB_FileFormat_DICOM;
+        ui->lineEditNumAngles->setEnabled(false);
+        ui->lineEditNumSlices->setEnabled(false);
+        ui->lineEditNumDetectors->setEnabled(false);
+        ui->comboBoxDataType->setEnabled(false);
+        ui->lineEditNumAngles->setText(tr("auto"));
+        ui->lineEditNumSlices->setText(tr("auto"));
+        ui->lineEditNumDetectors->setText(tr("auto"));
     } else {
+        ui->lineEditNumAngles->setEnabled(true);
+        ui->lineEditNumSlices->setEnabled(true);
+        ui->lineEditNumDetectors->setEnabled(true);
+        ui->comboBoxDataType->setEnabled(true);
         if (file_format_s == "Raw (Sinograms)") {
             file_format = ReconTaskParameterPB_FileFormat::ReconTaskParameterPB_FileFormat_RAW_SINOGRAM;
         } else if (file_format_s == "Raw (Projections)") {
@@ -937,4 +932,22 @@ void MainWindow::on_horizontalScrollBarResult_valueChanged(int value)
 {
     ui->comboBoxResult->setCurrentIndex(value);
     SetLabelImage(*ui->labelResultImage, CurrentTask_().GetPixmapResult(value));
+}
+
+void MainWindow::on_comboBoxFilter_currentTextChanged(const QString &arg1)
+{
+    GetCurrentParameter_().filter_type = arg1;
+    ParamChanged_();
+}
+
+void MainWindow::on_lineEditNumDetectors_textEdited(const QString &arg1)
+{
+    bool ok;
+    int num = arg1.toUInt(&ok);
+    if (!ok) {
+        ShowMessageBox("Positive # Detectors is required.");
+        return;
+    }
+    GetCurrentParameter_().num_detectors = num;
+    ParamChanged_();
 }

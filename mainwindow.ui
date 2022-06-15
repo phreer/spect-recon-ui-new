@@ -26,7 +26,7 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QHBoxLayout" name="horizontalLayout_6" stretch="1,3,1">
+   <layout class="QHBoxLayout" name="horizontalLayout_6" stretch="1,3,0">
     <item>
      <layout class="QVBoxLayout" name="verticalLayoutTaskList" stretch="0,20">
       <item>
@@ -316,38 +316,6 @@
        </widget>
       </item>
       <item>
-       <layout class="QVBoxLayout" name="verticalLayout">
-        <item>
-         <layout class="QGridLayout" name="gridLayout_2">
-          <item row="0" column="0">
-           <widget class="QLabel" name="labelSinogramFile">
-            <property name="text">
-             <string>Input FIle:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QLineEdit" name="lineEditSinogram">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="2">
-           <widget class="QPushButton" name="pushButtonSelectSinogram">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="text">
-             <string>Select...</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-       </layout>
-      </item>
-      <item>
        <layout class="QGridLayout" name="gridLayout_3" columnstretch="25,25,25,25">
         <item row="0" column="0">
          <widget class="QLabel" name="labelSinogramFormat">
@@ -444,7 +412,7 @@
          </widget>
         </item>
         <item row="2" column="3">
-         <widget class="QLineEdit" name="lineEdit">
+         <widget class="QLineEdit" name="lineEditNumDetectors">
           <property name="enabled">
            <bool>false</bool>
           </property>
@@ -457,7 +425,45 @@
       </item>
       <item>
        <layout class="QGridLayout" name="gridLayoutIO">
+        <item row="2" column="0">
+         <widget class="QLabel" name="labelSysMat">
+          <property name="text">
+           <string>System Matrix: File </string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QLineEdit" name="lineEditSysMat">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="labelOutputDir">
+          <property name="text">
+           <string>Output Directory: </string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="lineEditOutputDir">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
         <item row="1" column="2">
+         <widget class="QPushButton" name="pushButtonSelectOutputDir">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Select...</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2">
          <widget class="QPushButton" name="pushButtonSelectSysMat">
           <property name="enabled">
            <bool>false</bool>
@@ -467,36 +473,22 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="labelSysMat">
-          <property name="text">
-           <string>System Matrix: File </string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QLineEdit" name="lineEditSysMat">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-         </widget>
-        </item>
         <item row="0" column="0">
-         <widget class="QLabel" name="labelOutputDir">
+         <widget class="QLabel" name="labelSinogramFile">
           <property name="text">
-           <string>Output Directory: </string>
+           <string>Input FIle:</string>
           </property>
          </widget>
         </item>
         <item row="0" column="1">
-         <widget class="QLineEdit" name="lineEditOutputDir">
+         <widget class="QLineEdit" name="lineEditSinogram">
           <property name="enabled">
            <bool>false</bool>
           </property>
          </widget>
         </item>
         <item row="0" column="2">
-         <widget class="QPushButton" name="pushButtonSelectOutputDir">
+         <widget class="QPushButton" name="pushButtonSelectSinogram">
           <property name="enabled">
            <bool>false</bool>
           </property>
@@ -530,10 +522,10 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="2">
-         <widget class="QLabel" name="labelGamma">
+        <item row="0" column="2">
+         <widget class="QLabel" name="labelLambda">
           <property name="text">
-           <string>Gamma:</string>
+           <string>Lambda:</string>
           </property>
          </widget>
         </item>
@@ -544,6 +536,55 @@
           </property>
           <property name="text">
            <string>1</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="labelIteratpr">
+          <property name="text">
+           <string>Iterator:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="3">
+         <widget class="QCheckBox" name="checkBoxRestore">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Restore</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="3">
+         <widget class="QLineEdit" name="lineEditGamma">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>0.01</string>
+          </property>
+          <property name="maxLength">
+           <number>10</number>
+          </property>
+          <property name="placeholderText">
+           <string notr="true"/>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="3">
+         <widget class="QLineEdit" name="lineEditLambda">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>0.12</string>
+          </property>
+          <property name="maxLength">
+           <number>10</number>
+          </property>
+          <property name="placeholderText">
+           <string notr="true"/>
           </property>
          </widget>
         </item>
@@ -560,10 +601,10 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="labelIteratpr">
+        <item row="1" column="2">
+         <widget class="QLabel" name="labelGamma">
           <property name="text">
-           <string>Iterator:</string>
+           <string>Gamma:</string>
           </property>
          </widget>
         </item>
@@ -626,53 +667,33 @@
           </item>
          </widget>
         </item>
-        <item row="2" column="3">
-         <widget class="QCheckBox" name="checkBoxRestore">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
+        <item row="3" column="0">
+         <widget class="QLabel" name="labelFilter">
           <property name="text">
-           <string>Restore</string>
+           <string>Filter:</string>
           </property>
          </widget>
         </item>
-        <item row="0" column="3">
-         <widget class="QLineEdit" name="lineEditLambda">
+        <item row="3" column="1">
+         <widget class="QComboBox" name="comboBoxFilter">
           <property name="enabled">
            <bool>false</bool>
           </property>
-          <property name="text">
-           <string>0.12</string>
-          </property>
-          <property name="maxLength">
-           <number>10</number>
-          </property>
-          <property name="placeholderText">
-           <string notr="true"/>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="2">
-         <widget class="QLabel" name="labelLambda">
-          <property name="text">
-           <string>Lambda:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="3">
-         <widget class="QLineEdit" name="lineEditGamma">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>0.01</string>
-          </property>
-          <property name="maxLength">
-           <number>10</number>
-          </property>
-          <property name="placeholderText">
-           <string notr="true"/>
-          </property>
+          <item>
+           <property name="text">
+            <string>Void</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>MedianGaussianFilter</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>MeanFilterDropMinMax</string>
+           </property>
+          </item>
          </widget>
         </item>
        </layout>
